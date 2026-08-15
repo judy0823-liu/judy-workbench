@@ -266,18 +266,26 @@ a { text-decoration:none; color:inherit; }
   flex-shrink:0;
 }
 .topbar-title {
-  font-size: 16px;
+  font-size: clamp(14px, 4.5vw, 18px);
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .topbar-right {
   margin-left:auto;
   display:flex;
   align-items:center;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 .topbar-date {
-  font-size: 13px;
+  font-size: clamp(11px, 3.2vw, 13px);
   color: var(--text-gray);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .content-area {
   flex:1;
@@ -821,27 +829,28 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 /* ========== 英语学习子菜单 ========== */
 .sub-tabs {
   display:flex;
-  justify-content:space-between;
-  gap:0;
+  justify-content:flex-start;
+  gap:4px;
   overflow-x:auto;
   background:var(--white);
   border-radius:var(--radius);
   box-shadow: var(--shadow);
   margin-bottom:16px;
   padding:4px;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
 }
+.sub-tabs::-webkit-scrollbar { display:none; }
 .sub-tab {
-  flex:1 1 0;
-  min-width:0;
+  flex:0 0 auto;
+  min-width:auto;
   text-align:center;
-  padding: 8px 4px;
+  padding: 8px 10px;
   font-size:13px;
   font-weight:600;
   cursor:pointer;
   border-radius:var(--radius-sm);
   white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
   color: var(--text-gray);
   transition: all 0.2s;
 }
@@ -8009,7 +8018,7 @@ function renderFitnessContent() {
   return html + renderFitToday();
 }
 function renderFitnessTabs() {
-  const tabs = [['today','今日总览'], ['body','体围记录'], ['diet','饮食与营养'], ['plan','训练计划与日志']];
+  const tabs = [['today','今日总览'], ['body','体围记录'], ['diet','饮食与营养'], ['plan','训练计划']];
   return '<div class="sub-tabs">' + tabs.map(([k,l]) => '<div class="sub-tab ' + (fitnessTab===k?'active':'') + '" onclick="fitnessTab=\''+k+'\';switchPage(\'fitness\',\'\')">'+l+'</div>').join('') + '</div>';
 }
 function renderFitCountdown() {
@@ -8208,8 +8217,9 @@ function renderFitDiet() {
       html += '<div class="fit-empty-small">还没有记录</div>';
     } else {
       items.forEach(it => {
+        const qty = (it.unit && it.unit !== '克') ? (it.amount + it.unit) : (it.grams ? (Math.round(it.grams) + 'g') : '');
         html += '<div class="fit-meal-item">'
-          + '<span>' + escapeHTML(it.name) + (it.grams ? ' <span class="fit-meal-grams">' + it.grams + 'g</span>' : '') + '</span>'
+          + '<span>' + escapeHTML(it.name) + (qty ? ' <span class="fit-meal-grams">' + qty + '</span>' : '') + '</span>'
           + '<span class="fit-meal-cal">' + (it.calories || 0) + ' kcal</span>'
           + '</div>';
       });
@@ -8251,7 +8261,8 @@ function renderFitPlan() {
         dayItems.forEach(it => {
           const done = pageThisWeek && (it.doneDates || []).indexOf(today()) >= 0;
           g += '<div class="fit-day-item ' + (done ? 'done' : '') + '" onclick="togglePlanDone(\'' + it.id + '\')">'
-            + '<span>' + escapeHTML(it.type) + '</span><span>' + it.duration + '′</span>'
+            + '<span>' + escapeHTML(it.type) + (it.count ? ' ×' + it.count : '') + '</span><span>' + it.duration + '′</span>'
+            + (it.note ? '<div style="font-size:11px;color:var(--text-light);margin-top:2px">' + escapeHTML(it.note) + '</div>' : '')
             + '</div>';
         });
         g += '<button class="fit-btn-outline-sm" onclick="quickAddPlan(' + d + ')">安排</button>';
@@ -8289,7 +8300,7 @@ function renderFitPlan() {
     activeItems.forEach(it => {
       html += '<div class="fit-plan-item" onclick="togglePlanDone(\'' + it.id + '\')">'
         + '<span class="fit-plan-check"></span>'
-        + '<span class="fit-plan-name">' + escapeHTML(it.type) + '</span>'
+        + '<span class="fit-plan-name">' + escapeHTML(it.type) + (it.count ? ' ×' + it.count : '') + (it.note ? '<br><span style="font-size:11px;color:var(--text-light)">' + escapeHTML(it.note) + '</span>' : '') + '</span>'
         + '<span class="fit-plan-dur">' + it.duration + ' 分钟</span>'
         + '</div>';
     });
@@ -8303,7 +8314,7 @@ function renderFitPlan() {
   } else {
     html += '<div class="fit-mini-list">';
     allEx.slice(0, 8).forEach(e => {
-      html += '<div class="fit-mini-item"><span>' + e.date + ' · ' + escapeHTML(e.type) + '</span><span>' + (e.calories || 0) + ' kcal</span></div>';
+      html += '<div class="fit-mini-item"><span>' + e.date + ' · ' + escapeHTML(e.type) + (e.count ? ' ×' + e.count : '') + (e.note ? ' · ' + escapeHTML(e.note) : '') + '</span><span>' + (e.calories || 0) + ' kcal</span></div>';
     });
     html += '</div>';
   }
@@ -8397,7 +8408,23 @@ function addDietNew(date, meal) {
     <div class="modal-title">添加${meal}</div>
     <div class="mb-12"><label class="text-sm text-gray">食物名称</label><input type="text" id="foodName" placeholder="从食物库选择或自定义" style="margin-top:4px"></div>
     <div class="flex-row gap-sm mb-12">
-      <div style="flex:1"><label class="text-sm text-gray">分量 (g)</label><input type="number" id="foodGrams" step="1" placeholder="100" style="margin-top:4px" oninput="calcFoodCal()"></div>
+      <div style="flex:1.2"><label class="text-sm text-gray">分量</label><input type="number" id="foodAmount" step="0.5" placeholder="如 100" style="margin-top:4px" oninput="calcFoodCal()"></div>
+      <div style="flex:1"><label class="text-sm text-gray">单位</label>
+        <select id="foodUnit" style="margin-top:4px;width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box" onchange="togglePerG()">
+          <option value="克">克 (g)</option>
+          <option value="个">个</option>
+          <option value="份">份</option>
+          <option value="片">片</option>
+          <option value="ml">ml</option>
+          <option value="勺">勺</option>
+          <option value="杯">杯</option>
+          <option value="块">块</option>
+          <option value="根">根</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex-row gap-sm mb-12" id="perGRow" style="display:none">
+      <div style="flex:1"><label class="text-sm text-gray">每单位约多少克</label><input type="number" id="foodPerG" step="1" placeholder="如1个鸡蛋约50" style="margin-top:4px" oninput="calcFoodCal()"></div>
       <div style="flex:1"><label class="text-sm text-gray">热量 (kcal)</label><input type="number" id="foodCal" placeholder="自动" style="margin-top:4px"></div>
     </div>
     <div class="mb-12"><button class="btn btn-outline btn-sm" onclick="openFoodLibraryFromDiet()">🥘 从食物库选择</button></div>
@@ -8407,14 +8434,34 @@ function addDietNew(date, meal) {
     </div>
   `);
 }
+function togglePerG() {
+  const u = document.getElementById('foodUnit');
+  const row = document.getElementById('perGRow');
+  if (u && row) row.style.display = (u.value === '克') ? 'none' : 'flex';
+}
 function openFoodLibraryFromDiet() {
-  showModal(`
-    <div class="modal-title">选择食物</div>
-    <div class="mb-12"><input type="text" id="foodSearch" placeholder="搜索食物名称" style="width:100%" oninput="filterFoodLib()"></div>
-    <div id="foodLibGrid" class="fit-food-grid-modal"></div>
-    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">关闭</button></div>
-  `);
+  let ov = document.getElementById('dietFoodPickerOverlay');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'dietFoodPickerOverlay';
+    ov.className = 'modal-overlay show';
+    ov.style.zIndex = '2000';
+    document.body.appendChild(ov);
+  } else {
+    ov.classList.add('show');
+  }
+  ov.innerHTML = `
+    <div class="modal-panel">
+      <div class="modal-title">选择食物</div>
+      <div class="mb-12"><input type="text" id="foodSearch" placeholder="搜索食物名称" style="width:100%" oninput="filterFoodLib()"></div>
+      <div id="foodLibGrid" class="fit-food-grid-modal"></div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeDietFoodPicker()">关闭</button></div>
+    </div>`;
   renderFoodLibGrid();
+}
+function closeDietFoodPicker() {
+  const ov = document.getElementById('dietFoodPickerOverlay');
+  if (ov) ov.classList.remove('show');
 }
 function filterFoodLib() {
   renderFoodLibGrid();
@@ -8432,25 +8479,37 @@ function renderFoodLibGrid() {
 }
 function pickFood(name) {
   const n = document.getElementById('foodName');
-  const g = document.getElementById('foodGrams');
+  const a = document.getElementById('foodAmount');
+  const u = document.getElementById('foodUnit');
   if (n) n.value = name;
-  if (g && !g.value) g.value = 100;
+  if (u) u.value = '克';
+  if (a && !a.value) a.value = 100;
+  if (u) togglePerG();
   calcFoodCal();
-  closeModal();
+  closeDietFoodPicker();
 }
 function calcFoodCal() {
   const n = document.getElementById('foodName');
-  const g = document.getElementById('foodGrams');
+  const u = document.getElementById('foodUnit');
+  const amt = document.getElementById('foodAmount');
+  const perG = document.getElementById('foodPerG');
   const c = document.getElementById('foodCal');
-  if (!n || !g || !c) return;
+  if (!n || !u || !amt || !c) return;
   const f = fitFoodByName(n.value);
-  if (f && g.value) c.value = Math.round(f.per100.cal * parseFloat(g.value) / 100);
+  let grams = 0;
+  const unit = u.value;
+  if (unit === '克') grams = parseFloat(amt.value) || 0;
+  else if (perG && parseFloat(perG.value)) grams = (parseFloat(amt.value) || 0) * parseFloat(perG.value);
+  if (f && grams) c.value = Math.round(f.per100.cal * grams / 100);
 }
 function saveDietNew(date, meal) {
   const name = document.getElementById('foodName').value.trim();
-  const grams = parseFloat(document.getElementById('foodGrams').value) || 0;
+  const unit = document.getElementById('foodUnit').value;
+  const amount = parseFloat(document.getElementById('foodAmount').value) || 0;
+  const perG = unit === '克' ? 1 : (parseFloat(document.getElementById('foodPerG').value) || 0);
   let cal = parseInt(document.getElementById('foodCal').value) || 0;
   if (!name) { showToast('请输入食物名称'); return; }
+  const grams = unit === '克' ? amount : (amount * perG);
   const f = fitFoodByName(name);
   let p = null, c2 = null, fa = null;
   if (f && grams) {
@@ -8460,7 +8519,7 @@ function saveDietNew(date, meal) {
     fa = +(f.per100.f * grams / 100).toFixed(1);
   } else if (!cal) { showToast('请输入热量'); return; }
   if (!DB.dietRecords[date]) DB.dietRecords[date] = [];
-  DB.dietRecords[date].push({ name, grams: grams || null, calories: cal, protein: p, carbs: c2, fat: fa, meal, time: Date.now() });
+  DB.dietRecords[date].push({ name, unit: unit, amount: amount || null, perUnitG: unit === '克' ? null : (perG || null), grams: grams || null, calories: cal, protein: p, carbs: c2, fat: fa, meal, time: Date.now() });
   saveDB(); closeModal(); switchPage('fitness', ''); showToast('已添加：' + name);
 }
 function deleteDiet(date, meal, time) {
@@ -8537,8 +8596,13 @@ function quickAddPlan(dow) {
   EXERCISE_LIBRARY.forEach(x => { chips += '<button type="button" class="food-chip" onclick="fillPlan(\'' + x.name + '\')">' + x.name + '</button>'; });
   showModal(`
     <div class="modal-title">安排训练（周${['一','二','三','四','五','六','日'][d-1]}）</div>
-    <div class="mb-12"><label class="text-sm text-gray">运动项目</label><input type="text" id="planType" placeholder="如：慢跑、力量训练" style="margin-top:4px"></div>
-    <div class="mb-12"><label class="text-sm text-gray">时长（分钟）</label><input type="number" id="planDur" value="30" style="margin-top:4px"></div>
+    <div class="mb-12"><label class="text-sm text-gray">运动项目</label><input type="text" id="planType" placeholder="如：慢跑、跳绳、力量训练" style="margin-top:4px"></div>
+    <div class="flex-row gap-sm mb-12">
+      <div style="flex:1"><label class="text-sm text-gray">时长（分钟）</label><input type="number" id="planDur" value="30" style="margin-top:4px"></div>
+      <div style="flex:1"><label class="text-sm text-gray">数量（可选，如跳绳500）</label><input type="number" id="planCount" placeholder="个/组" style="margin-top:4px"></div>
+    </div>
+    <div class="mb-12"><label class="text-sm text-gray">备注（可选，如深蹲50个）</label><input type="text" id="planNote" placeholder="记录细节" style="margin-top:4px"></div>
+    <div class="mb-12"><label class="text-sm text-gray">消耗卡路里(kcal)（可选，留空自动估算）</label><input type="number" id="planCal" placeholder="自动" style="margin-top:4px"></div>
     <div class="mb-12"><label class="text-sm text-gray">常见项目</label><div class="food-chips">${chips}</div></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal()">取消</button>
@@ -8550,11 +8614,14 @@ function fillPlan(name) { const t = document.getElementById('planType'); if (t) 
 function savePlanItem(dow) {
   const type = document.getElementById('planType').value.trim();
   const duration = parseInt(document.getElementById('planDur').value) || 0;
+  const count = parseInt(document.getElementById('planCount').value) || 0;
+  const note = document.getElementById('planNote').value.trim();
+  const calManual = parseInt(document.getElementById('planCal').value) || 0;
   if (!type) { showToast('请输入运动项目'); return; }
   if (!duration) { showToast('请输入时长'); return; }
   const wk = fitPlanWeekKey;
   if (!DB.fitnessPlan[wk]) DB.fitnessPlan[wk] = [];
-  DB.fitnessPlan[wk].push({ id: uid('plan'), dow, type, duration, doneDates: [] });
+  DB.fitnessPlan[wk].push({ id: uid('plan'), dow, type, duration, count: count || null, note: note || null, calManual: calManual || null, doneDates: [] });
   saveDB(); closeModal(); switchPage('fitness', ''); showToast('已安排训练');
 }
 function deletePlanItem(id) {
@@ -8570,12 +8637,13 @@ function togglePlanDone(id) {
   const idx = it.doneDates.indexOf(t0);
   if (idx >= 0) {
     it.doneDates.splice(idx, 1);
+    if (DB.exerciseRecords[t0]) DB.exerciseRecords[t0] = DB.exerciseRecords[t0].filter(e => e.planId !== it.id);
   } else {
     it.doneDates.push(t0);
     const x = EXERCISE_LIBRARY.find(e => e.name === it.type);
-    const cal = x ? exCalorie(x.met, it.duration) : 0;
+    const cal = it.calManual ? it.calManual : (x ? exCalorie(x.met, it.duration) : 0);
     if (!DB.exerciseRecords[t0]) DB.exerciseRecords[t0] = [];
-    DB.exerciseRecords[t0].push({ type: it.type, duration: it.duration, calories: cal, note: '计划完成', time: Date.now() });
+    DB.exerciseRecords[t0].push({ planId: it.id, type: it.type, duration: it.duration, count: it.count, note: it.note, calories: cal, time: Date.now() });
   }
   saveDB(); switchPage('fitness', '');
 }
@@ -9662,7 +9730,6 @@ const BODY_OPTS  = ['无', '腰酸', '腹胀', '乏力', '头痛', '恶心', '�
 const MOOD_OPTS  = ['😊 愉快', '😐 平静', '😔 低落', '😣 烦躁', '🥱 疲惫'];
 
 function memoMod(key){ return MEMO_MODULES.find(m => m.key === key) || MEMO_MODULES[0]; }
-function daysBetween(a, b){ return Math.round((new Date(a + 'T00:00:00') - new Date(b + 'T00:00:00')) / 86400000); }
 function fmtCountdown(start){
   if (!start) return '未设置';
   const d = daysBetween(start, today());
@@ -10084,6 +10151,11 @@ function addLoveRecord(){
     title: title || '恋爱日记', content, mood: document.getElementById('loveMood').value,
     photos: lovePhotoDraft.slice(), time: Date.now()
   });
+  // 清空编辑表单
+  document.getElementById('loveTitle').value = '';
+  document.getElementById('loveContent').value = '';
+  const moodEl = document.getElementById('loveMood');
+  if (moodEl) moodEl.value = MOOD_OPTS[0];
   lovePhotoDraft = [];
   saveDB(); renderPage('memo',''); showToast('日记已保存');
 }
@@ -10551,8 +10623,8 @@ function renderPage(page, subpage) {
 function updateTopbarDate() {
   const now = new Date();
   const days = ['日','一','二','三','四','五','六'];
-  document.getElementById('topbarDate').textContent = 
-    `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 周${days[now.getDay()]}`;
+  document.getElementById('topbarDate').textContent =
+    `${now.getMonth()+1}月${now.getDate()}日 周${days[now.getDay()]}`;
 }
 
 /* 渲染后事件绑定 */
