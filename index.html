@@ -2382,19 +2382,18 @@ function saveDBNow() {
 }
 
 /* ========================================================
-   微信云开发 数据同步（可选）
-   - 数据仍保存在本机 localStorage；开启后额外同步到云端
-   - 匿名登录，无需注册用户；需在云开发控制台开启匿名登录 + 安全域名 + 建集合
+   码云（Gitee）私有仓库云同步（可选）
+   - 数据仍保存在本机 localStorage；开启后额外同步到你的码云私有仓库
+   - 需在 gitee.com 建私有仓库 + 生成私人令牌（projects 权限）后，在 ☁️ 设置里填写
 ======================================================== */
-const CLOUD_COLLECTION = 'judy_data';
-const CLOUD_DOC_ID = 'judy';
-const CLOUD_ENV_KEY = 'judy_cloud_env';
+/* ===== 码云（Gitee）私有仓库云同步 ===== */
+const GITEE_USER_KEY = 'judy_gitee_user';
+const GITEE_REPO_KEY = 'judy_gitee_repo';
+const GITEE_TOKEN_KEY = 'judy_gitee_token';
 const SYNC_META_KEY = 'judy_sync_meta';
 
 const cloud = {
   ready: false,
-  db: null,
-  envId: null,
   status: '未启用',
   busy: false
 };
@@ -2411,61 +2410,43 @@ function cloudSetStatus(s) {
   if (el) el.textContent = s;
 }
 
-function loadTcbSdk(v) {
-  v = v || '1.7.1';
-  return new Promise((resolve, reject) => {
-    if (window.tcb) return resolve(window.tcb);
-    const s = document.createElement('script');
-    s.src = 'https://imgcache.qq.com/qcloud/tcbjs/' + v + '/tcb.js';
-    s.onload = () => window.tcb ? resolve(window.tcb) : reject(new Error('tcb 未定义'));
-    s.onerror = () => reject(new Error('SDK 加载失败（检查网络或版本号）'));
-    document.head.appendChild(s);
-  });
-}
-
-async function cloudInit(envId, silent) {
-  if (!envId) { cloudSetStatus('请填写环境 ID'); return false; }
-  if (cloud.ready && cloud.envId === envId) return true;
-  try {
-    if (!silent) cloudSetStatus('连接中…');
-    const tcb = await loadTcbSdk();
-    const app = tcb.init({ env: envId });
-    await app.auth().signInAnonymously();
-    cloud.db = app.database();
-    cloud.envId = envId;
-    cloud.ready = true;
-    localStorage.setItem(CLOUD_ENV_KEY, envId);
-    if (!silent) showToast('云同步已开启');
-    await cloudPull(true);
-    return true;
-  } catch(e) {
-    cloud.ready = false;
-    cloudSetStatus('连接失败：' + (e && e.message ? e.message : e));
-    if (!silent) showToast('云同步连接失败');
-    return false;
-  }
+function giteeApi(path, opts) {
+  opts = opts || {};
+  const token = localStorage.getItem(GITEE_TOKEN_KEY) || '';
+  let url = 'https://gitee.com/api/v5/' + path;
+  url += (url.indexOf('?') >= 0 ? '&' : '?') + 'access_token=' + encodeURIComponent(token);
+  return fetch(url, opts);
 }
 
 async function cloudPull(silent) {
   if (!cloud.ready) return;
   try {
-    const res = await cloud.db.collection(CLOUD_COLLECTION).doc(CLOUD_DOC_ID).get();
-    if (res.data && res.data.length) {
-      const rec = res.data[0];
+    const user = localStorage.getItem(GITEE_USER_KEY);
+    const repo = localStorage.getItem(GITEE_REPO_KEY);
+    const res = await giteeApi('repos/' + user + '/' + repo + '/contents/data.json');
+    if (res.status === 200) {
+      const json = await res.json();
+      const text = decodeURIComponent(escape(atob(json.content.replace(/\s/g, ''))));
+      const remote = JSON.parse(text);
       const meta = cloudLoadMeta();
-      if (!meta.ts || (rec.ts && rec.ts > meta.ts)) {
-        DB = JSON.parse(rec.db);
+      if (!meta.ts || (remote.ts && remote.ts > meta.ts)) {
+        DB = remote.db;
         localStorage.setItem(STORE_KEY, JSON.stringify(DB));
-        loadDB(); // 复用默认结构补全
-        cloudSaveMeta({ ts: rec.ts, lastSync: Date.now() });
-        if (!silent) { showToast('已从云端同步'); renderPage(curPage, curSub); }
+        loadDB();
+        cloudSaveMeta({ ts: remote.ts, lastSync: Date.now() });
+        if (!silent) { showToast('\u5df2\u4ece\u4e91\u7aef\u540c\u6b65'); renderPage(curPage, curSub); }
       } else if (!silent) {
-        showToast('本地已是最新');
+        showToast('\u672c\u5730\u5df2\u662f\u6700\u65b0');
       }
+      cloudSetStatus('\u5df2\u8fde\u63a5 \u00b7 \u540c\u6b65\u6b63\u5e38');
+    } else if (res.status === 404) {
+      await cloudPush();
+      cloudSetStatus('\u5df2\u8fde\u63a5 \u00b7 \u5df2\u521d\u59cb\u5316\u4e91\u7aef');
+    } else {
+      cloudSetStatus('\u62c9\u53d6\u5931\u8d25\uff1aHTTP ' + res.status);
     }
-    cloudSetStatus('已连接 · 同步正常');
   } catch(e) {
-    cloudSetStatus('拉取失败：' + (e && e.message ? e.message : e));
+    cloudSetStatus('\u62c9\u53d6\u5931\u8d25\uff1a' + (e && e.message ? e.message : e));
   }
 }
 
@@ -2478,77 +2459,128 @@ function scheduleCloudPush() {
     cloudPush();
   }, 800);
 }
+
 async function cloudPush() {
   if (!cloud.ready) return;
-  const meta = cloudLoadMeta();
+  const user = localStorage.getItem(GITEE_USER_KEY);
+  const repo = localStorage.getItem(GITEE_REPO_KEY);
   const ts = Date.now();
+  const payload = { db: DB, ts };
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
   try {
-    await cloud.db.collection(CLOUD_COLLECTION).doc(CLOUD_DOC_ID).set({ db: JSON.stringify(DB), ts });
-    cloudSaveMeta({ ts, lastSync: Date.now() });
-    cloudSetStatus('已同步 ' + new Date(ts).toLocaleTimeString('zh-CN'));
+    let sha = null;
+    try {
+      const r0 = await giteeApi('repos/' + user + '/' + repo + '/contents/data.json');
+      if (r0.status === 200) sha = (await r0.json()).sha;
+    } catch(e){}
+    const body = { message: 'sync ' + ts, content };
+    if (sha) body.sha = sha;
+    const res = await giteeApi('repos/' + user + '/' + repo + '/contents/data.json', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.status === 200 || res.status === 201) {
+      cloudSaveMeta({ ts, lastSync: Date.now() });
+      cloudSetStatus('\u5df2\u540c\u6b65 ' + new Date(ts).toLocaleTimeString('zh-CN'));
+    } else {
+      cloudSetStatus('\u540c\u6b65\u5931\u8d25\uff1aHTTP ' + res.status);
+    }
   } catch(e) {
-    cloudSetStatus('同步失败：' + (e && e.message ? e.message : e));
+    cloudSetStatus('\u540c\u6b65\u5931\u8d25\uff1a' + (e && e.message ? e.message : e));
   }
 }
 
+async function cloudInit(silent) {
+  const user = localStorage.getItem(GITEE_USER_KEY);
+  const repo = localStorage.getItem(GITEE_REPO_KEY);
+  const token = localStorage.getItem(GITEE_TOKEN_KEY);
+  if (!user || !repo || !token) {
+    if (!silent) cloudSetStatus('\u8bf7\u586b\u5199\u7528\u6237\u540d/\u4ed3\u5e93/\u4ee4\u724c');
+    return false;
+  }
+  cloud.ready = true;
+  if (!silent) { cloudSetStatus('\u8fde\u63a5\u4e2d\u2026'); showToast('\u4e91\u540c\u6b65\u5df2\u5f00\u542f'); }
+  await cloudPull(true);
+  return true;
+}
+
 function cloudAutoInit() {
-  const env = localStorage.getItem(CLOUD_ENV_KEY);
-  if (env) {
-    cloudInit(env, true).then(ok => { if (ok) cloudSetStatus('已连接 · 同步正常'); });
+  const user = localStorage.getItem(GITEE_USER_KEY);
+  const repo = localStorage.getItem(GITEE_REPO_KEY);
+  const token = localStorage.getItem(GITEE_TOKEN_KEY);
+  if (user && repo && token) {
+    cloudInit(true).then(ok => { if (ok) cloudSetStatus('\u5df2\u8fde\u63a5 \u00b7 \u540c\u6b65\u6b63\u5e38'); });
   }
 }
 
 function openCloudSync() {
-  const env = localStorage.getItem(CLOUD_ENV_KEY) || '';
+  const user = localStorage.getItem(GITEE_USER_KEY) || '';
+  const repo = localStorage.getItem(GITEE_REPO_KEY) || '';
+  const token = localStorage.getItem(GITEE_TOKEN_KEY) || '';
   const html = `
-    <div class="modal-title">☁️ 云同步设置</div>
+    <div class="modal-title">\u2601\ufe0f \u4e91\u540c\u6b65\u8bbe\u7f6e\uff08\u7801\u4e91 Gitee\uff09</div>
     <div class="modal-body">
       <p style="font-size:13px;color:var(--muted);line-height:1.6">
-        开启后，数据会额外保存到「微信云开发」，手机/电脑/平板自动保持一致。<br>
-        数据仍会存在本机，不上传也能正常用。
+        \u5f00\u542f\u540e\uff0c\u6570\u636e\u4f1a\u989d\u5916\u4fdd\u5b58\u5230\u4f60\u7684<b>\u7801\u4e91\u79c1\u6709\u4ed3\u5e93</b>\uff0c\u624b\u673a/\u7535\u8111/\u5e73\u677f\u81ea\u52a8\u4fdd\u6301\u4e00\u81f4\u3002<br>
+        \u6570\u636e\u4ecd\u4f1a\u5b58\u5728\u672c\u673a\uff0c\u4e0d\u4e0a\u4f20\u4e5f\u80fd\u6b63\u5e38\u7528\u3002
       </p>
-      <label style="display:block;font-size:13px;margin:10px 0 4px;color:var(--text-main)">微信云开发 环境 ID</label>
-      <input id="cloudEnvInput" value="${env}" placeholder="粘贴你的环境 ID" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box">
+      <label style="display:block;font-size:13px;margin:10px 0 4px;color:var(--text-main)">\u7801\u4e91\u7528\u6237\u540d</label>
+      <input id="giteeUser" value="${user}" placeholder="\u5982 judy0823" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box">
+      <label style="display:block;font-size:13px;margin:10px 0 4px;color:var(--text-main)">\u4ed3\u5e93\u540d\uff08\u79c1\u6709\uff09</label>
+      <input id="giteeRepo" value="${repo}" placeholder="\u5982 judy-data" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box">
+      <label style="display:block;font-size:13px;margin:10px 0 4px;color:var(--text-main)">\u79c1\u4eba\u4ee4\u724c\uff08Private Token\uff09</label>
+      <input id="giteeToken" value="${token}" type="password" placeholder="\u7c98\u8d34\u4f60\u7684\u79c1\u4eba\u4ee4\u724c" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box">
       <div style="font-size:12px;color:var(--muted);margin-top:6px">
-        状态：<span id="cloudStatus" style="color:var(--accent)">${cloud.status}</span>
+        \u72b6\u6001\uff1a<span id="cloudStatus" style="color:var(--accent)">${cloud.status}</span>
       </div>
       <details style="margin-top:10px;font-size:12px;color:var(--muted)">
-        <summary style="cursor:pointer;color:var(--accent)">👉 如何获取环境 ID（只做一次）</summary>
+        <summary style="cursor:pointer;color:var(--accent)">\u203c\ufe0f \u5982\u4f55\u51c6\u5907\u4ed3\u5e93\u4e0e\u4ee4\u724c\uff08\u53ea\u505a\u4e00\u6b21\uff09</summary>
         <div style="line-height:1.7;margin-top:6px">
-          1. 电脑打开 console.cloud.tencent.com/tcb，用微信扫码登录<br>
-          2. 按提示完成<b>实名认证</b>（免费，需身份证）<br>
-          3. 新建环境，选「按量计费/免费额度」，得到环境 ID（如 xxx-1gxxxx）<br>
-          4. 进入环境 → <b>登录授权</b> → 开启<b>匿名登录</b><br>
-          5. 进入环境 → <b>安全配置</b> → Web 安全域名，添加 <b>judy0823-liu.github.io</b><br>
-          6. 进入环境 → <b>数据库</b> → 新建集合，名称填 <b>judy_data</b>，权限设「所有用户可读写」
+          1. \u6253\u5f00 gitee.com\uff0c\u65b0\u5efa\u4e00\u4e2a<b>\u79c1\u6709</b>\u4ed3\u5e93\uff08\u5982 judy-data\uff09<br>
+          2. \u70b9\u53f3\u4e0a\u89d2<b>\u5934\u50cf \u2192 \u8bbe\u7f6e \u2192 \u79c1\u4eba\u4ee4\u724c</b><br>
+          3. \u70b9<b>\u751f\u6210\u65b0\u4ee4\u724c</b>\uff0c\u6743\u9650\u53ea\u52fe <b>projects</b>\uff0c\u590d\u5236\u751f\u6210\u7684\u4ee4\u724c<br>
+          4. \u628a\u4e0a\u9762\u4e09\u9879\u586b\u597d\uff0c\u70b9\u300c\u5f00\u542f\u540c\u6b65\u300d\u5373\u53ef<br>
+          <span style="color:var(--text-main)">\u63d0\u793a\uff1a\u79c1\u4eba\u4ee4\u724c\u53ea\u5b58\u5728\u4f60\u672c\u673a\u6d4f\u89c8\u5668\u91cc\uff0c\u4e0d\u4f1a\u51fa\u73b0\u5728\u7f51\u9875\u6e90\u7801\u4e2d\u3002</span>
         </div>
       </details>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeCloudSync()">关闭</button>
-      <button class="btn btn-outline" onclick="cloudManualSync()">立即同步</button>
-      <button class="btn btn-primary" onclick="cloudEnable()">开启同步</button>
+      <button class="btn btn-outline" onclick="closeCloudSync()">\u5173\u95ed</button>
+      <button class="btn btn-outline" onclick="cloudManualSync()">\u7acb\u5373\u540c\u6b65</button>
+      <button class="btn btn-primary" onclick="cloudEnable()">\u5f00\u542f\u540c\u6b65</button>
     </div>`;
   showModal(html);
 }
 function closeCloudSync() { closeModal(); }
 async function cloudEnable() {
-  const env = document.getElementById('cloudEnvInput').value.trim();
-  if (!env) { showToast('请先填写环境 ID'); return; }
-  cloudSetStatus('连接中…');
-  await cloudInit(env, false);
+  const user = document.getElementById('giteeUser').value.trim();
+  const repo = document.getElementById('giteeRepo').value.trim();
+  const token = document.getElementById('giteeToken').value.trim();
+  if (!user || !repo || !token) { showToast('\u8bf7\u586b\u5199\u7528\u6237\u540d\u3001\u4ed3\u5e93\u548c\u4ee4\u724c'); return; }
+  localStorage.setItem(GITEE_USER_KEY, user);
+  localStorage.setItem(GITEE_REPO_KEY, repo);
+  localStorage.setItem(GITEE_TOKEN_KEY, token);
+  cloudSetStatus('\u8fde\u63a5\u4e2d\u2026');
+  await cloudInit(false);
 }
 async function cloudManualSync() {
-  if (!cloud.ready) {
-    const inp = document.getElementById('cloudEnvInput');
-    const env = inp ? inp.value.trim() : '';
-    if (env) { await cloudInit(env, false); }
+  const u = document.getElementById('giteeUser');
+  const r = document.getElementById('giteeRepo');
+  const t = document.getElementById('giteeToken');
+  if (u && r && t) {
+    localStorage.setItem(GITEE_USER_KEY, u.value.trim());
+    localStorage.setItem(GITEE_REPO_KEY, r.value.trim());
+    localStorage.setItem(GITEE_TOKEN_KEY, t.value.trim());
   }
-  if (!cloud.ready) { showToast('请先开启同步并填写环境 ID'); return; }
+  if (!cloud.ready) {
+    const ok = await cloudInit(false);
+    if (!ok) return;
+  }
   await cloudPull(true);
   await cloudPush();
-  showToast('已同步到云端');
-  cloudSetStatus('已同步 ' + new Date().toLocaleTimeString('zh-CN'));
+  showToast('\u5df2\u540c\u6b65\u5230\u4e91\u7aef');
+  cloudSetStatus('\u5df2\u540c\u6b65 ' + new Date().toLocaleTimeString('zh-CN'));
 }
 
 /* 日期工具 */
