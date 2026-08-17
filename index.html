@@ -842,15 +842,17 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 }
 .sub-tabs::-webkit-scrollbar { display:none; }
 .sub-tab {
-  flex:0 0 auto;
-  min-width:auto;
+  flex:1 1 auto;
+  min-width:0;
   text-align:center;
-  padding: 8px 10px;
+  padding: 8px 8px;
   font-size:13px;
   font-weight:600;
   cursor:pointer;
   border-radius:var(--radius-sm);
   white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
   color: var(--text-gray);
   transition: all 0.2s;
 }
@@ -1901,8 +1903,9 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-week-pages::-webkit-scrollbar { display:none; }
 .fit-week-page { flex:0 0 100%; min-width:100%; box-sizing:border-box; padding:0 2px; scroll-snap-align:start; }
 .fit-week-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
-.fit-day-card { background:#fff; border:1px solid var(--f4-line); border-radius:14px; padding:12px 6px; min-width:0; display:flex; flex-direction:column; gap:8px; text-align:center; }
+.fit-day-card { background:#fff; border:1px solid var(--f4-line); border-radius:14px; padding:12px 6px; min-width:0; display:flex; flex-direction:column; gap:8px; text-align:center; cursor:pointer; }
 .fit-day-card.today { border-color:var(--f4-accent); box-shadow:0 0 0 2px rgba(123,168,154,.15); }
+.fit-day-card.selected { background:var(--f4-accent-l); border-color:var(--f4-accent); }
 .fit-day-head { font-size:12px; color:var(--f4-muted); }
 .fit-day-empty { font-size:12px; color:var(--f4-muted); padding:6px 0; }
 .fit-day-item { font-size:12px; padding:5px 4px; background:var(--f4-sage-l); border-radius:8px; color:var(--f4-sage-d); cursor:pointer; }
@@ -1918,10 +1921,12 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-tag { display:inline-block; background:var(--f4-beige); color:var(--f4-text); font-size:10px; padding:1px 5px; border-radius:6px; margin-top:3px; }
 
 /* 食物库网格 */
-.fit-food-grid-modal { display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:320px; overflow-y:auto; }
-.fit-food-grid-item { background:var(--f4-card); border:1px solid var(--f4-line); border-radius:12px; padding:10px; cursor:pointer; text-align:center; position:relative; }
+.fit-food-grid-modal { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; max-height:min(420px, 55vh); overflow-y:auto; padding-bottom:8px; }
+.fit-food-grid-item { background:var(--f4-card); border:1px solid var(--f4-line); border-radius:12px; padding:10px 6px; cursor:pointer; text-align:center; position:relative; }
 .fit-food-grid-item:hover { border-color:var(--f4-accent); }
 .fit-food-grid-thumb { width:48px; height:48px; border-radius:8px; object-fit:cover; margin-bottom:6px; background:var(--f4-card-2); }
+.fit-food-grid-edit { position:absolute; top:4px; right:4px; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,.9); border:1px solid var(--f4-line); display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; z-index:2; }
+.fit-food-grid-edit:hover { background:var(--f4-accent); color:#fff; }
 .fit-food-grid-name { font-weight:600; font-size:14px; margin-bottom:3px; }
 .fit-food-grid-meta { font-size:11px; color:var(--f4-muted); }
 .fit-food-img-input { display:none; }
@@ -7714,6 +7719,7 @@ let fitBodyRange = 30;                          // 30 | 90 | 180 | 0
 let fitBodyCustomStart = null, fitBodyCustomEnd = null;
 let fitDietDate = today();
 let fitPlanWeekKey = fitWeekKeyOf(today());
+let fitPlanSelectedDay = today();
 let weightEntryDate = today();
 
 /* ----- 食物库（与参考图一致，含每 100g 营养） ----- */
@@ -8240,7 +8246,7 @@ function renderFitPlan() {
   const monday = wk;
   const todayDow = fitDow(today());
 
-  let html = '<div class="flex-between mb-12"><span style="font-size:12px;color:var(--text-light)">力量、有氧都可记录；完成质量比堆叠数字更重要</span><button class="btn btn-primary btn-sm" onclick="quickAddPlan()">+ 安排训练</button></div>';
+  let html = '<div class="flex-between mb-12"><span style="font-size:15px;font-weight:700;color:var(--text-black)">训练安排</span><button class="btn btn-primary btn-sm" onclick="quickAddPlan()">+ 安排训练</button></div>';
 
   const currentWeekKey = fitWeekKeyOf(today());
   const prevMonday = addDays(monday, -7);
@@ -8253,19 +8259,20 @@ function renderFitPlan() {
       const day = addDays(pageMonday, d - 1);
       const dayItems = pageItems.filter(it => it.dow === d);
       const isToday = pageThisWeek && d === todayDow;
-      g += '<div class="fit-day-card ' + (isToday ? 'today' : '') + '">'
+      const isSelected = day === fitPlanSelectedDay;
+      g += '<div class="fit-day-card ' + (isToday ? 'today' : '') + ' ' + (isSelected ? 'selected' : '') + '" onclick="selectPlanDay(\'' + day + '\')">'
         + '<div class="fit-day-head">' + ['一','二','三','四','五','六','日'][d-1] + ' · ' + day.slice(5).replace('-','.') + '</div>';
       if (dayItems.length === 0) {
-        g += '<div class="fit-day-empty">休息 / 待安排</div><button class="fit-btn-outline-sm" onclick="quickAddPlan(' + d + ')">安排</button>';
+        g += '<div class="fit-day-empty">休息 / 待安排</div><button class="fit-btn-outline-sm" onclick="event.stopPropagation(); quickAddPlan(' + d + ')">安排</button>';
       } else {
         dayItems.forEach(it => {
-          const done = pageThisWeek && (it.doneDates || []).indexOf(today()) >= 0;
-          g += '<div class="fit-day-item ' + (done ? 'done' : '') + '" onclick="togglePlanDone(\'' + it.id + '\')">'
+          const done = (it.doneDates || []).indexOf(day) >= 0;
+          g += '<div class="fit-day-item ' + (done ? 'done' : '') + '">'
             + '<span>' + escapeHTML(it.type) + (it.count ? ' ×' + it.count : '') + '</span><span>' + it.duration + '′</span>'
             + (it.note ? '<div style="font-size:11px;color:var(--text-light);margin-top:2px">' + escapeHTML(it.note) + '</div>' : '')
             + '</div>';
         });
-        g += '<button class="fit-btn-outline-sm" onclick="quickAddPlan(' + d + ')">安排</button>';
+        g += '<button class="fit-btn-outline-sm" onclick="event.stopPropagation(); quickAddPlan(' + d + ')">安排</button>';
       }
       g += '</div>';
     }
@@ -8281,7 +8288,9 @@ function renderFitPlan() {
     + buildWeekPage(nextMonday)
     + '</div></div>';
 
-  const activeItems = fitTodayPlanItems().filter(it => (it.doneDates || []).indexOf(today()) < 0);
+  const selectedDow = fitDow(fitPlanSelectedDay);
+  const selectedWk = fitWeekKeyOf(fitPlanSelectedDay);
+  const selectedItems = fitPlanItems(selectedWk).filter(it => it.dow === selectedDow);
   const allEx = [];
   Object.keys(DB.exerciseRecords).forEach(d => DB.exerciseRecords[d].forEach((e, idx) => allEx.push({ date: d, idx, ...e })));
   allEx.sort((a, b) => b.time - a.time);
@@ -8289,17 +8298,18 @@ function renderFitPlan() {
 
   html += '<div class="dashboard-grid">'
     + '<div class="card">'
-    + '<div class="card-title">进行中的训练 <span style="float:right;font-size:12px;color:var(--text-light);font-weight:400">逐组勾选并即时保存</span></div>';
-  if (activeItems.length === 0) {
+    + '<div class="card-title">今日训练 <span style="float:right;font-size:12px;color:var(--text-light);font-weight:400">' + fitPlanSelectedDay.slice(5).replace('-','月') + '日 ' + fitDowName(fitPlanSelectedDay) + '</span></div>';
+  if (selectedItems.length === 0) {
     html += '<div class="fit-empty-box">'
-      + '<div class="fit-empty-title">当前没有进行中的训练</div>'
-      + '<div class="fit-empty-desc">从本周计划开始，或创建一个训练安排。</div>'
+      + '<div class="fit-empty-title">这一天没有训练安排</div>'
+      + '<div class="fit-empty-desc">从上方本周计划点击日期，或点击安排按钮添加。</div>'
       + '</div>';
   } else {
     html += '<div class="fit-plan-list">';
-    activeItems.forEach(it => {
-      html += '<div class="fit-plan-item" onclick="togglePlanDone(\'' + it.id + '\')">'
-        + '<span class="fit-plan-check"></span>'
+    selectedItems.forEach(it => {
+      const done = (it.doneDates || []).indexOf(fitPlanSelectedDay) >= 0;
+      html += '<div class="fit-plan-item ' + (done ? 'done' : '') + '" onclick="togglePlanDoneForDay(\'' + it.id + '\', \'' + fitPlanSelectedDay + '\')">'
+        + '<span class="fit-plan-check">' + (done ? '✓' : '') + '</span>'
         + '<span class="fit-plan-name">' + escapeHTML(it.type) + (it.count ? ' ×' + it.count : '') + (it.note ? '<br><span style="font-size:11px;color:var(--text-light)">' + escapeHTML(it.note) + '</span>' : '') + '</span>'
         + '<span class="fit-plan-dur">' + it.duration + ' 分钟</span>'
         + '</div>';
@@ -8322,6 +8332,29 @@ function renderFitPlan() {
 
   setTimeout(fitCenterWeekPages, 0);
   return html;
+}
+function selectPlanDay(day) {
+  fitPlanSelectedDay = day;
+  switchPage('fitness', '');
+}
+function togglePlanDoneForDay(id, day) {
+  event.stopPropagation();
+  const wk = fitWeekKeyOf(day);
+  const it = (DB.fitnessPlan[wk] || []).find(x => x.id === id);
+  if (!it) return;
+  if (!it.doneDates) it.doneDates = [];
+  const idx = it.doneDates.indexOf(day);
+  if (idx >= 0) {
+    it.doneDates.splice(idx, 1);
+    if (DB.exerciseRecords[day]) DB.exerciseRecords[day] = DB.exerciseRecords[day].filter(e => e.planId !== it.id);
+  } else {
+    it.doneDates.push(day);
+    const x = EXERCISE_LIBRARY.find(e => e.name === it.type);
+    const cal = it.calManual ? it.calManual : (x ? exCalorie(x.met, it.duration) : 0);
+    if (!DB.exerciseRecords[day]) DB.exerciseRecords[day] = [];
+    DB.exerciseRecords[day].push({ planId: it.id, type: it.type, duration: it.duration, count: it.count, note: it.note, calories: cal, time: Date.now() });
+  }
+  saveDB(); switchPage('fitness', '');
 }
 
 /* ===== 公共头部（大标题 + 副标题 + 右上角操作） ===== */
@@ -8357,7 +8390,7 @@ function _showBodyRecordModal() {
     <div class="mb-12"><label class="text-sm text-gray">日期</label><button class="btn btn-outline btn-sm" onclick="openDatePicker(weightEntryDate, function(v){ weightEntryDate=v; _showBodyRecordModal(); })" style="margin-top:4px">📅 ${weightEntryDate}</button></div>
     <div class="flex-row gap-sm mb-12">
       <div style="flex:1"><label class="text-sm text-gray">体重 (kg) *</label><input type="number" id="brWeight" step="0.1" placeholder="65.0" value="${w ? w.weight : (cur ? cur.toFixed(1) : '')}" oninput="_autoFillBodyFatFromInput()" style="margin-top:4px"></div>
-      <div style="flex:1"><label class="text-sm text-gray">体脂 (%)（可选，已按身高体重估算）</label><input type="number" id="brBodyFat" step="0.1" placeholder="28.5" value="${w && w.bodyFat != null ? w.bodyFat : estBodyFat}" style="margin-top:4px"></div>
+      <div style="flex:1"><label class="text-sm text-gray">体脂 (%)（可选）</label><input type="number" id="brBodyFat" step="0.1" placeholder="28.5" value="${w && w.bodyFat != null ? w.bodyFat : estBodyFat}" style="margin-top:4px"></div>
     </div>
     <div class="flex-row gap-sm mb-12">
       <div style="flex:1"><label class="text-sm text-gray">腰围 (cm)（可选）</label><input type="number" id="brWaist" step="0.1" placeholder="76.0" value="${c ? c.waist : ''}" style="margin-top:4px"></div>
@@ -8451,10 +8484,10 @@ function openFoodLibraryFromDiet() {
     ov.classList.add('show');
   }
   ov.innerHTML = `
-    <div class="modal-panel">
+    <div class="modal-panel" style="max-width:min(92vw,520px);width:92vw;max-height:80vh;display:flex;flex-direction:column">
       <div class="modal-title">选择食物</div>
       <div class="mb-12"><input type="text" id="foodSearch" placeholder="搜索食物名称" style="width:100%" oninput="filterFoodLib()"></div>
-      <div id="foodLibGrid" class="fit-food-grid-modal"></div>
+      <div id="foodLibGrid" class="fit-food-grid-modal" style="flex:1;min-height:180px"></div>
       <div class="modal-footer"><button class="btn btn-outline" onclick="closeDietFoodPicker()">关闭</button></div>
     </div>`;
   renderFoodLibGrid();
@@ -8471,11 +8504,59 @@ function renderFoodLibGrid() {
   const lib = (DB.foodLibrary || []).filter(f => !q || f.name.toLowerCase().indexOf(q) >= 0);
   const box = document.getElementById('foodLibGrid');
   if (!box) return;
-  box.innerHTML = lib.map(f => '<div class="fit-food-grid-item" onclick="pickFood(\'' + escapeHTML(f.name) + '\')">'
+  box.innerHTML = lib.map(f => '<div class="fit-food-grid-item">'
+    + '<span class="fit-food-grid-edit" onclick="event.stopPropagation(); editFoodItem(\'' + f.id + '\')" title="编辑">✏️</span>'
+    + '<div onclick="pickFood(\'' + escapeHTML(f.name) + '\')">'
     + (f.photo ? '<img class="fit-food-grid-thumb" src="' + f.photo + '" onclick="event.stopPropagation()">' : '<div class="fit-food-grid-thumb" style="display:inline-flex;align-items:center;justify-content:center;color:var(--f4-muted);font-size:11px">无图</div>')
     + '<div class="fit-food-grid-name">' + escapeHTML(f.name) + '</div>'
-    + '<div class="fit-food-grid-meta">' + escapeHTML(f.state) + ' · ' + f.per100.cal + ' kcal/100g</div>'
-    + '</div>').join('');
+    + '<div class="fit-food-grid-meta">' + escapeHTML(f.state || '—') + ' · ' + (f.per100 ? f.per100.cal : 0) + ' kcal/100g</div>'
+    + '</div></div>').join('');
+}
+function editFoodItem(id) {
+  const f = (DB.foodLibrary || []).find(x => x.id === id);
+  if (!f) return;
+  showModal(`<div class="modal-title">编辑食物</div>
+    <div class="mb-12"><label class="text-sm text-gray">名称</label><input type="text" id="efName" value="${escapeAttr(f.name)}" style="margin-top:4px"></div>
+    <div class="mb-12"><label class="text-sm text-gray">状态（如：熟重）</label><input type="text" id="efState" value="${escapeAttr(f.state || '')}" style="margin-top:4px"></div>
+    <div class="flex-row gap-sm mb-12">
+      <div style="flex:1"><label class="text-sm text-gray">kcal</label><input type="number" id="efCal" value="${f.per100 ? f.per100.cal : ''}" style="margin-top:4px"></div>
+      <div style="flex:1"><label class="text-sm text-gray">蛋白g</label><input type="number" id="efP" value="${f.per100 ? f.per100.p : ''}" step="0.1" style="margin-top:4px"></div>
+      <div style="flex:1"><label class="text-sm text-gray">碳水g</label><input type="number" id="efC" value="${f.per100 ? f.per100.c : ''}" step="0.1" style="margin-top:4px"></div>
+      <div style="flex:1"><label class="text-sm text-gray">脂肪g</label><input type="number" id="efF" value="${f.per100 ? f.per100.f : ''}" step="0.1" style="margin-top:4px"></div>
+    </div>
+    <div class="mb-12">
+      <input type="file" id="efPhotoInput" class="fit-food-img-input" accept="image/*" capture="environment" onchange="handleFoodPhoto(this, 'efPhotoPreview')">
+      <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('efPhotoInput').click()">📷 替换照片</button>
+      <img id="efPhotoPreview" style="${f.photo ? '' : 'display:none;'}width:64px;height:64px;object-fit:cover;border-radius:8px;margin-top:8px;border:1px solid var(--f4-line)" src="${f.photo || ''}">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" onclick="deleteFoodItem('${id}'); closeModal()">删除</button>
+      <button class="btn btn-primary" onclick="saveFoodEdit('${id}')">保存</button>
+    </div>`);
+}
+function saveFoodEdit(id) {
+  const f = (DB.foodLibrary || []).find(x => x.id === id);
+  if (!f) return;
+  const name = document.getElementById('efName').value.trim();
+  if (!name) { showToast('请输入名称'); return; }
+  f.name = name;
+  f.state = document.getElementById('efState').value.trim();
+  const preview = document.getElementById('efPhotoPreview');
+  if (preview && preview.src && preview.style.display !== 'none' && preview.src.indexOf('undefined') < 0) f.photo = preview.src;
+  const cal = parseFloat(document.getElementById('efCal').value) || 0;
+  const p = parseFloat(document.getElementById('efP').value) || 0;
+  const c = parseFloat(document.getElementById('efC').value) || 0;
+  const fa = parseFloat(document.getElementById('efF').value) || 0;
+  f.per100 = { cal, p, c, f:fa };
+  saveDB();
+  closeModal();
+  renderFoodLibGrid();
+  showToast('食物已更新');
+}
+function deleteFoodItem(id) {
+  DB.foodLibrary = (DB.foodLibrary || []).filter(x => x.id !== id);
+  saveDB(); renderFoodLibGrid();
 }
 function pickFood(name) {
   const n = document.getElementById('foodName');
@@ -8558,13 +8639,13 @@ function openFoodLibrary() {
   renderFoodLibGrid();
 }
 let nfPhotoData = null;
-function handleFoodPhoto(input) {
+function handleFoodPhoto(input, previewId) {
   const file = input.files && input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
     nfPhotoData = e.target.result;
-    const img = document.getElementById('nfPhotoPreview');
+    const img = document.getElementById(previewId || 'nfPhotoPreview');
     if (img) { img.src = nfPhotoData; img.style.display = 'block'; }
   };
   reader.readAsDataURL(file);
@@ -10004,7 +10085,7 @@ function renderPeriodRecordModal(){
       <div style="flex:1;min-width:132px"><label class="text-sm text-gray">结束日期</label><br>
         <button class="btn btn-outline btn-sm mt-4" onclick="openDatePicker(periodEntryEnd, function(v){ periodEntryEnd=v; renderPeriodRecordModal(); })">📅 ${periodEntryEnd}</button></div>
     </div>
-    <div class="text-sm text-gray mb-12">本次共 <b>${Math.max(0, daysBetween(periodEntryEnd, periodEntryStart) + 1)}</b> 天 · 记录 <b>${d}</b> 的当日情况</div>
+    <div class="text-sm text-gray mb-12">正在记录 <b>${d}</b> 的当日情况</div>
     <div class="period-form">
       <div class="period-field"><label>经血量</label>
         <select id="dayFlow">${FLOW_OPTS.map(o => `<option ${((log.flow || FLOW_OPTS[0]) === o) ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
@@ -10115,7 +10196,7 @@ function renderLoveModule(){
     ${d === today() ? '<span class="badge">今天</span>' : `<button class="btn btn-outline btn-sm" onclick="loveModuleDate=today();renderPage('memo','')">今天</button>`}
   </div>`;
   html += `<div class="card">
-    <div class="section-header"><h3>💕 写下 ${d} 的恋爱日常</h3></div>
+    <div class="section-header"><h3>💕 恋爱日常</h3></div>
     <div class="mb-12"><label class="text-sm text-gray">标题</label>
       <input type="text" id="loveTitle" placeholder="例如：一起看了日落" style="margin-top:4px"></div>
     <div class="mb-12"><label class="text-sm text-gray">正文</label>
@@ -10131,7 +10212,7 @@ function renderLoveModule(){
     <button class="btn btn-primary w-full" onclick="addLoveRecord()">保存日记</button>
   </div>`;
 
-  html += `<div class="card mt-16"><div class="section-header"><h3>📆 ${d} 的日记</h3><span class="text-sm text-gray">${dayRecs.length} 篇</span></div>`;
+  html += `<div class="card mt-16"><div class="section-header"><h3>📆 我的日记</h3><span class="text-sm text-gray">${dayRecs.length} 篇</span></div>`;
   if (!dayRecs.length) html += '<div class="empty-state"><span class="emoji">💕</span>这一天还没有日记</div>';
   else dayRecs.forEach(r => { html += renderTextCard(r); });
   html += '</div>';
@@ -10314,6 +10395,7 @@ function renderPasswordModule(){
       <input type="password" id="lockInput" inputmode="numeric" maxlength="6" placeholder="••••" class="memo-lock-input"
         onkeydown="if(event.key==='Enter') unlockMemo()">
       <button class="btn btn-primary w-full mt-12" onclick="unlockMemo()">解锁</button>
+      <button class="btn btn-text btn-sm w-full mt-8" onclick="forgotMemoPin()" style="color:var(--text-light)">忘记密码？</button>
     </div>`;
   }
   const all = memoRecs('password').sort((a,b) => b.time - a.time);
@@ -10324,6 +10406,7 @@ function renderPasswordModule(){
     ${d === today() ? '<span class="badge">今天</span>' : `<button class="btn btn-outline btn-sm" onclick="passwordModuleDate=today();renderPage('memo','')">今天</button>`}
     <div style="flex:1"></div>
     <button class="btn btn-outline btn-sm" onclick="${lk.enabled ? 'lockMemoNow()' : 'enableMemoLock()'}" title="${lk.enabled ? '立即上锁' : '开启上锁'}">🔒</button>
+    ${lk.enabled ? '<button class="btn btn-outline btn-sm" onclick="changeMemoPin()">修改密码</button>' : ''}
     <button class="btn btn-primary btn-sm" onclick="openPwdModal()">+ 新增</button>
   </div>`;
   html += `<div class="card"><div class="section-header"><h3>📚 全部账号</h3><span class="text-sm text-gray">共 ${all.length} 条</span></div>`;
@@ -10437,6 +10520,20 @@ function unlockMemo(){
   memoUnlocked = true;
   renderPage('memo',''); showToast('已解锁');
 }
+function forgotMemoPin(){
+  showModal(`<div class="modal-title">忘记密码</div>
+    <div class="text-sm text-gray mb-12">本地没有邮箱验证，重置密码将<b>清空密码本所有记录</b>并关闭上锁。确定要继续吗？</div>
+    <div class="mb-12"><label class="text-sm text-gray">输入「确定重置」以确认</label><input type="text" id="resetConfirm" placeholder="确定重置" style="margin-top:4px"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">取消</button><button class="btn btn-danger" onclick="doResetMemoPin()">确认重置</button></div>`);
+}
+function doResetMemoPin(){
+  if (document.getElementById('resetConfirm').value.trim() !== '确定重置') { showToast('请输入「确定重置」'); return; }
+  DB.memoData.records = (DB.memoData.records || []).filter(r => r.category !== 'password');
+  DB.memoData.lock = { enabled:false, pin:'' };
+  memoUnlocked = true;
+  pwdShow = {};
+  saveDB(); closeModal(); renderPage('memo',''); showToast('已重置：密码本记录已清空');
+}
 
 /* ========================================================
    通用编辑 / 删除
@@ -10541,6 +10638,8 @@ function saveMemoRecordEdit(id){
   if (r.category === 'password') { r.account = (g('emAccount') || '').trim(); r.password = g('emPassword') || ''; }
   if (r.category === 'memo') r.subtype = g('emSubtype');
   if (r.category === 'love') { r.mood = g('emMood'); if (typeof editPhotoDraft !== 'undefined') r.photos = editPhotoDraft.slice(); }
+  currentEditId = null;
+  editPhotoDraft = [];
   saveDB(); closeModal(); renderPage('memo',''); showToast('已更新');
 }
 function deleteMemoRecord(id){
