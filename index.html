@@ -719,6 +719,30 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .period-day-label { font-size:12px; color: var(--text-gray); }
 .period-day-row select, .period-day-row input { font-size:11px; padding:5px 4px; margin:0; }
 
+/* 经期：状态卡 */
+.period-status { background:linear-gradient(135deg,#fbf2f6,#fff); border:1px solid #eedbe5; border-radius:var(--radius); padding:16px 14px; text-align:center; margin-bottom:12px; }
+.period-status .ps-big { font-size:34px; font-weight:700; color:#c98fa6; line-height:1.2; }
+.period-status .ps-sub { font-size:13px; color:#8a6a78; margin-top:6px; }
+.period-status .ps-meta { font-size:11px; color:#a98b99; margin-top:4px; }
+/* 经期：图例 + 日历 */
+.period-legend { display:flex; gap:12px; flex-wrap:wrap; margin:10px 0; font-size:11px; color:var(--text-gray); }
+.period-legend span { display:inline-flex; align-items:center; gap:4px; }
+.period-legend i { width:11px; height:11px; border-radius:50%; display:inline-block; }
+.period-calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; text-align:center; }
+.period-cal-weekday { font-size:11px; color:var(--text-light); padding:4px 0; }
+.period-cal-day { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:50%; font-size:13px; color:var(--text-black); position:relative; cursor:pointer; }
+.period-cal-day .num { line-height:1; }
+.period-cal-day .mark { font-size:8px; margin-top:1px; opacity:.85; }
+.period-cal-day.period { background:#dfa0ba; color:#fff; }
+.period-cal-day.predict { background:#f6dde7; color:#a4657f; }
+.period-cal-day.ovu-day { background:#c5a3e0; color:#fff; }
+.period-cal-day.ovu { background:#d4eef7; color:#4a7a8a; }
+.period-cal-day.today { box-shadow:0 0 0 2px #8a6a78 inset; }
+.period-cal-day.empty { cursor:default; }
+.period-cur-pill { display:inline-block; padding:2px 8px; border-radius:999px; background:#f3e7ec; color:#a06a82; font-size:11px; margin-left:6px; }
+.period-history-date { font-weight:600; font-size:13px; color:var(--text-black); }
+.period-history-meta { font-size:11px; color:var(--text-light); margin-top:3px; }
+
 /* 密码本上锁 */
 .memo-lock-card { text-align:center; padding:34px 20px; }
 .memo-lock-icon { font-size:42px; margin-bottom:10px; }
@@ -1874,10 +1898,13 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-plan-list { display:flex; flex-direction:column; gap:8px; }
 .fit-plan-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:var(--f4-card-2); border-radius:12px; cursor:pointer; }
 .fit-plan-item.done { opacity:.55; }
+.fit-plan-item.done .fit-plan-name,
+.fit-plan-item.done .fit-plan-dur { text-decoration:line-through; }
 .fit-plan-check { width:20px; height:20px; border-radius:50%; border:2px solid var(--f4-sage); display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; }
 .fit-plan-item.done .fit-plan-check { background:var(--f4-sage); }
 .fit-plan-name { flex:1; font-weight:600; font-size:14px; }
 .fit-plan-dur { font-size:12px; color:var(--f4-muted); }
+.fit-day-item.done { text-decoration:line-through; }
 
 /* 四大营养卡 */
 .fit-macro4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
@@ -1921,10 +1948,11 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-tag { display:inline-block; background:var(--f4-beige); color:var(--f4-text); font-size:10px; padding:1px 5px; border-radius:6px; margin-top:3px; }
 
 /* 食物库网格 */
-.fit-food-grid-modal { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; max-height:min(420px, 55vh); overflow-y:auto; padding-bottom:8px; }
-.fit-food-grid-item { background:var(--f4-card); border:1px solid var(--f4-line); border-radius:12px; padding:10px 6px; cursor:pointer; text-align:center; position:relative; }
+.fit-food-grid-modal { display:flex; flex-direction:column; gap:8px; max-height:min(420px, 55vh); overflow-y:auto; padding-bottom:8px; }
+.fit-food-grid-item { display:flex; align-items:center; gap:10px; background:var(--f4-card); border:1px solid var(--f4-line); border-radius:12px; padding:10px 12px; cursor:pointer; text-align:left; position:relative; }
 .fit-food-grid-item:hover { border-color:var(--f4-accent); }
-.fit-food-grid-thumb { width:48px; height:48px; border-radius:8px; object-fit:cover; margin-bottom:6px; background:var(--f4-card-2); }
+.fit-food-grid-info { flex:1; min-width:0; }
+.fit-food-grid-thumb { width:48px; height:48px; border-radius:8px; object-fit:cover; flex-shrink:0; background:var(--f4-card-2); }
 .fit-food-grid-edit { position:absolute; top:4px; right:4px; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,.9); border:1px solid var(--f4-line); display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; z-index:2; }
 .fit-food-grid-edit:hover { background:var(--f4-accent); color:#fff; }
 .fit-food-grid-name { font-weight:600; font-size:14px; margin-bottom:3px; }
@@ -2270,6 +2298,7 @@ function loadDB() {
   if (!DB.savingsGoals) DB.savingsGoals = {};
   if (!DB.yearSavingGoals) DB.yearSavingGoals = {};
   if (!DB.expenseCategories) DB.expenseCategories = ['餐饮','购物','交通','娱乐','住房','医疗','学习','社交','其他'];
+  if (!DB.memoSubtypes) DB.memoSubtypes = [];
   if (!DB.englishData) DB.englishData = {
     checkIns: {}, // {date: true}
     studyLogs: {}, // {date: minutes}
@@ -2604,6 +2633,9 @@ function fmtMoney(n) {
   const v = Number(n);
   if (!isFinite(v)) return '0.00';
   return v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtMoneyInt(n) {
+  return String(Math.round(Number(n) || 0));
 }
 function formatDate(d) {
   const dt = d instanceof Date ? d : new Date(d);
@@ -8263,7 +8295,7 @@ function renderFitPlan() {
       g += '<div class="fit-day-card ' + (isToday ? 'today' : '') + ' ' + (isSelected ? 'selected' : '') + '" onclick="selectPlanDay(\'' + day + '\')">'
         + '<div class="fit-day-head">' + ['一','二','三','四','五','六','日'][d-1] + ' · ' + day.slice(5).replace('-','.') + '</div>';
       if (dayItems.length === 0) {
-        g += '<div class="fit-day-empty">休息 / 待安排</div><button class="fit-btn-outline-sm" onclick="event.stopPropagation(); quickAddPlan(' + d + ')">安排</button>';
+        g += '<div class="fit-day-empty">休息 / 待安排</div>';
       } else {
         dayItems.forEach(it => {
           const done = (it.doneDates || []).indexOf(day) >= 0;
@@ -8272,7 +8304,6 @@ function renderFitPlan() {
             + (it.note ? '<div style="font-size:11px;color:var(--text-light);margin-top:2px">' + escapeHTML(it.note) + '</div>' : '')
             + '</div>';
         });
-        g += '<button class="fit-btn-outline-sm" onclick="event.stopPropagation(); quickAddPlan(' + d + ')">安排</button>';
       }
       g += '</div>';
     }
@@ -8504,13 +8535,14 @@ function renderFoodLibGrid() {
   const lib = (DB.foodLibrary || []).filter(f => !q || f.name.toLowerCase().indexOf(q) >= 0);
   const box = document.getElementById('foodLibGrid');
   if (!box) return;
-  box.innerHTML = lib.map(f => '<div class="fit-food-grid-item">'
-    + '<span class="fit-food-grid-edit" onclick="event.stopPropagation(); editFoodItem(\'' + f.id + '\')" title="编辑">✏️</span>'
-    + '<div onclick="pickFood(\'' + escapeHTML(f.name) + '\')">'
-    + (f.photo ? '<img class="fit-food-grid-thumb" src="' + f.photo + '" onclick="event.stopPropagation()">' : '<div class="fit-food-grid-thumb" style="display:inline-flex;align-items:center;justify-content:center;color:var(--f4-muted);font-size:11px">无图</div>')
+  box.innerHTML = lib.map(f => '<div class="fit-food-grid-item" onclick="pickFood(\'' + escapeAttr(f.name) + '\')">'
+    + '<div class="fit-food-grid-info">'
     + '<div class="fit-food-grid-name">' + escapeHTML(f.name) + '</div>'
     + '<div class="fit-food-grid-meta">' + escapeHTML(f.state || '—') + ' · ' + (f.per100 ? f.per100.cal : 0) + ' kcal/100g</div>'
-    + '</div></div>').join('');
+    + '</div>'
+    + (f.photo ? '<img class="fit-food-grid-thumb" src="' + f.photo + '">' : '<div class="fit-food-grid-thumb" style="display:inline-flex;align-items:center;justify-content:center;color:var(--f4-muted);font-size:11px">无图</div>')
+    + '<span class="fit-food-grid-edit" onclick="event.stopPropagation(); editFoodItem(\'' + f.id + '\')" title="编辑">✏️</span>'
+    + '</div>').join('');
 }
 function editFoodItem(id) {
   const f = (DB.foodLibrary || []).find(x => x.id === id);
@@ -9190,11 +9222,11 @@ function renderFinanceOverview() {
   html += `<div class="card">
     <div class="card-title">🎯 储蓄进度</div>
     <div class="mb-12">
-      <div class="flex-between mb-4" style="flex-wrap:nowrap;gap:8px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">年度储蓄目标（${ovYear}）</span><span class="font-bold" style="white-space:nowrap;flex-shrink:0;margin-left:8px">¥${fmtMoney(ovYearActual)} / ¥${fmtMoney(ovYearTarget)}</span></div>
+      <div class="flex-between mb-4" style="flex-wrap:nowrap;gap:8px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">年度储蓄目标（${ovYear}）</span><span class="font-bold" style="white-space:nowrap;flex-shrink:0;margin-left:8px">¥${fmtMoneyInt(ovYearActual)} / ¥${fmtMoneyInt(ovYearTarget)}</span></div>
       <div class="progress-bar"><div class="progress-fill" style="width:${ovYearTarget>0?Math.min(100,Math.round(ovYearActual/ovYearTarget*100)):0}%"></div></div>
     </div>
     <div>
-      <div class="flex-between mb-4" style="flex-wrap:nowrap;gap:8px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">当月储蓄目标（${financeViewMonth}）</span><span class="font-bold" style="white-space:nowrap;flex-shrink:0;margin-left:8px">¥${fmtMoney(mg.actual||0)} / ¥${fmtMoney(mg.target||0)}</span></div>
+      <div class="flex-between mb-4" style="flex-wrap:nowrap;gap:8px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">当月储蓄目标（${financeViewMonth}）</span><span class="font-bold" style="white-space:nowrap;flex-shrink:0;margin-left:8px">¥${fmtMoneyInt(mg.actual||0)} / ¥${fmtMoneyInt(mg.target||0)}</span></div>
       <div class="progress-bar"><div class="progress-fill" style="width:${(mg.target||0)>0?Math.min(100,Math.round((mg.actual||0)/(mg.target||0)*100)):0}%"></div></div>
     </div>
   </div>`;
@@ -9308,6 +9340,7 @@ function addBill() {
       <div id="customCategoryBox" style="display:none;margin-top:6px">
         <input type="text" id="customCategory" placeholder="输入新分类名称" style="width:100%">
       </div>
+      <div class="text-right mt-4"><a href="javascript:void(0)" style="font-size:12px;color:#e07a5f" onclick="deleteBillCategory()">🗑 删除该分类</a></div>
     </div>
     <div class="mb-12">
       <label class="text-sm text-gray">备注</label>
@@ -9362,6 +9395,7 @@ function editBill(id) {
     <div class="mb-12">
       <label class="text-sm text-gray">分类</label>
       <select id="billCategory" style="margin-top:4px">${catOpts}</select>
+      <div class="text-right mt-4"><a href="javascript:void(0)" style="font-size:12px;color:#e07a5f" onclick="deleteBillCategory(${id})">🗑 删除该分类</a></div>
     </div>
     <div class="mb-12">
       <label class="text-sm text-gray">备注</label>
@@ -9430,13 +9464,13 @@ function renderSavings() {
   let html = `
   <div class="card">
     <div class="flex-between mb-12">
-      <div class="flex-row gap-sm">
+      <div class="flex-row gap-sm" style="gap:4px;flex-wrap:nowrap">
         <button class="btn-icon" onclick="changeSavingsViewDate(-1)">◀</button>
-        <button class="btn btn-outline btn-sm" onclick="openDatePicker(savingsViewDate, function(v){ savingsViewDate=v; switchPage('finance',''); })">📅 ${d}</button>
+        <button class="btn btn-outline btn-sm" onclick="openDatePicker(savingsViewDate, function(v){ savingsViewDate=v; switchPage('finance',''); })">📅 ${d.slice(5)}</button>
         <button class="btn-icon" onclick="changeSavingsViewDate(1)">▶</button>
         ${isToday ? '' : '<button class="btn btn-outline btn-sm" onclick="savingsViewDate=today();switchPage(\'finance\',\'\')" title="今天">今天</button>'}
       </div>
-      <button class="btn btn-primary btn-sm" onclick="addSavingsAccount()">+ 添加账户</button>
+      <button class="btn btn-primary btn-sm" onclick="addSavingsAccount()">+ 账户</button>
     </div>
   </div>`;
 
@@ -9772,6 +9806,17 @@ function saveCategory() {
   switchPage('finance','');
   showToast('分类已添加');
 }
+function deleteBillCategory(editId) {
+  const sel = document.getElementById('billCategory');
+  const cat = sel ? sel.value : '';
+  if (!cat || cat === '__custom__') { showToast('请先选择一个要删除的分类'); return; }
+  if (!confirm('确定删除分类「' + cat + '」？该分类下的历史账单仍会保留。')) return;
+  DB.expenseCategories = DB.expenseCategories.filter(c => c !== cat);
+  saveDB();
+  closeModal();
+  if (editId != null) editBill(editId); else addBill();
+  showToast('分类已删除');
+}
 
 /* 页面渲染分发 */
 /* ========================================================
@@ -9789,6 +9834,7 @@ const MEMO_MODULES = [
 const DEFAULT_MEMO_SUBTYPES = ['亲友生日', '他人喜好', '日常备忘', '重要事项'];
 function getMemoSubtypes(){
   const set = new Set(DEFAULT_MEMO_SUBTYPES);
+  (DB.memoSubtypes || []).forEach(t => set.add(t));
   (DB.memoData.records || []).forEach(r => { if (r.category === 'memo' && r.subtype) set.add(r.subtype); });
   return Array.from(set);
 }
@@ -9805,15 +9851,38 @@ function memoSubtypeDatalistEdit(id, selected){
   return `<input type="text" list="emSubtypeList" id="${id}" value="${escapeAttr(selected || '日常备忘')}" placeholder="输入或选择类型" style="margin-top:4px">
   <datalist id="emSubtypeList">${opts}</datalist>`;
 }
+function memoSubtypePicker(selected, id){
+  const opts = getMemoSubtypes().map(t => `<option value="${escapeAttr(t)}" ${(selected === t) ? 'selected' : ''}>${escapeHTML(t)}</option>`).join('');
+  return `<select id="${id}" style="margin-top:4px" onchange="var v=this.value,b=document.getElementById('${id}_new'); if(v==='__new__'){b.style.display='block';b.focus();}else{b.style.display='none';}">
+    <option value="" ${!selected ? 'selected' : ''}>选择类型</option>
+    ${opts}
+    <option value="__new__">＋ 新建类型</option>
+  </select>
+  <input type="text" id="${id}_new" placeholder="输入新类型名称" style="margin-top:6px;display:none">`;
+}
+function readMemoSubtype(id){
+  const sel = document.getElementById(id);
+  const newInput = document.getElementById(id + '_new');
+  let v = sel ? sel.value : '';
+  if (v === '__new__' && newInput) {
+    v = (newInput.value || '').trim();
+    if (v && !(DB.memoSubtypes || []).includes(v)) { DB.memoSubtypes.push(v); }
+  }
+  return v || '日常备忘';
+}
 const FLOW_OPTS  = ['未记录', '少', '中', '多'];
 const PAIN_OPTS  = ['无痛', '轻微', '中度', '剧烈'];
 const BODY_OPTS  = ['无', '腰酸', '腹胀', '乏力', '头痛', '恶心', '胸胀'];
 const MOOD_OPTS  = ['😊 愉快', '😐 平静', '😔 低落', '😣 烦躁', '🥱 疲惫'];
 
 function memoMod(key){ return MEMO_MODULES.find(m => m.key === key) || MEMO_MODULES[0]; }
+function dateDiff(a,b){
+  if (!a || !b) return null;
+  return Math.floor((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+}
 function fmtCountdown(start){
   if (!start) return '未设置';
-  const d = daysBetween(start, today());
+  const d = dateDiff(start, today());
   if (d === 0) return '就是今天';
   return d > 0 ? '还有 ' + d + ' 天' : '已经 ' + Math.abs(d) + ' 天';
 }
@@ -9822,14 +9891,19 @@ function memoRecs(cat){ return DB.memoData.records.filter(r => r.category === ca
 let _uidSeq = 0;
 function uid(prefix){ return prefix + '-' + Date.now().toString(36) + '-' + (++_uidSeq).toString(36) + Math.floor(Math.random()*1296).toString(36); }
 
-/* 经期统计 */
+/* 经期统计与预测 */
 function periodStarts(){ return memoRecs('period').filter(r => r.start).map(r => r.start).sort(); }
 function avgCycle(){
   const ps = periodStarts();
   if (ps.length < 2) return 28;
   const gaps = [];
   for (let i = 1; i < ps.length; i++) gaps.push(daysBetween(ps[i], ps[i-1]));
-  return Math.max(15, Math.round(gaps.reduce((a,b) => a+b, 0) / gaps.length));
+  return Math.max(15, Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length));
+}
+function avgPeriodLen(){
+  const lens = memoRecs('period').filter(r => r.start && r.end).map(r => daysBetween(r.start, r.end) + 1);
+  if (!lens.length) return 5;
+  return Math.max(2, Math.round(lens.reduce((a,b)=>a+b,0)/lens.length));
 }
 function estimateNextPeriod(){
   const ps = periodStarts();
@@ -9837,141 +9911,113 @@ function estimateNextPeriod(){
   return addDays(ps[ps.length-1], ps.length === 1 ? 28 : avgCycle());
 }
 function periodOfDate(d){
-  return memoRecs('period').find(r => r.start && r.end && daysBetween(d, r.start) >= 0 && daysBetween(r.end, d) >= 0) || null;
+  return memoRecs('period').find(r => r.start && daysBetween(d, r.start) >= 0 && (!r.end || daysBetween(r.end, d) >= 0)) || null;
 }
 function periodSummary(r){
-  const days = (r.start && r.end) ? daysBetween(r.end, r.start) + 1 : 0;
+  const days = (r.start && r.end) ? daysBetween(r.start, r.end) + 1 : 0;
   const logs = r.days || {};
   const filled = Object.keys(logs).length;
   const pains = Object.values(logs).map(l => PAIN_OPTS.indexOf(l.pain)).filter(v => v > 0);
   const avgPain = pains.length ? PAIN_OPTS[Math.round(pains.reduce((a,b)=>a+b,0)/pains.length)] : null;
   return { days, filled, avgPain };
 }
-
-/* ========== 主渲染 ========== */
-function renderMemo(){
-  let html = '';
-
-  /* ===== ① 顶部常驻计时卡片区 ===== */
-  html += `<div class="card">
-    <div class="section-header"><h3>⏳ 计时卡片</h3>
-      <button class="btn btn-primary btn-sm" onclick="addCountdown()">＋ 新增卡片</button></div>
-    <div class="countdown-grid">`;
-  DB.memoData.countdowns.forEach(c => {
-    const diff = c.startDate ? daysBetween(c.startDate, today()) : null;
-    const past = diff !== null && diff < 0;
-    const del = `<button class="btn-icon btn-sm" onclick="deleteCountdown('${c.id}')" title="删除">🗑</button>`;
-    const n = diff === null ? null : Math.abs(diff);
-    const label = diff === null ? '未设置日期' : (diff === 0 ? '就是今天' : (diff > 0 ? '还有' : '已经'));
-    html += `<div class="countdown-card${c.fixed ? ' fixed' : ''}">
-      <div class="countdown-main">
-        <div class="countdown-title">${escapeHTML(c.title)}</div>
-        <div class="countdown-date">${past ? '起始' : '目标'} ${c.startDate || '—'}</div>
-      </div>
-      <div class="countdown-num${past ? ' countdown-past' : ''}">
-        ${n === null ? `<b style="font-size:15px">未设置</b>` : (diff === 0 ? `<b style="font-size:16px">今天</b>` : `<span class="cd-pre">${label}</span><b>${n}</b><span class="cd-suf">天</span>`)}
-      </div>
-      <div class="countdown-acts">
-        <button class="btn-icon btn-sm" onclick="editCountdown('${c.id}')" title="编辑">✏️</button>${del}
-      </div>
-    </div>`;
+function periodMarkMap(){
+  // 返回 { 'YYYY-MM-DD': 'period'|'predict'|'ovu-day'|'ovu' }
+  const marks = {};
+  memoRecs('period').forEach(r => {
+    if (!r.start) return;
+    let cur = r.start, guard = 0;
+    const end = r.end || today();
+    while (daysBetween(end, cur) >= 0 && guard < 45) { marks[cur] = 'period'; cur = addDays(cur,1); guard++; }
   });
-  html += '</div></div>';
-
-  /* ===== ② 模块 Tab ===== */
-  html += '<div class="sub-tabs mt-12">';
-  MEMO_MODULES.forEach(m => {
-    const n = memoModuleCount(m.key);
-    html += `<div class="sub-tab ${memoModule === m.key ? 'active' : ''}" onclick="switchMemoModule('${m.key}')">${m.emoji} ${m.name}${n ? ' <span class="memo-count">' + n + '</span>' : ''}</div>`;
-  });
-  html += '</div>';
-
-  html += `<div id="memoBody">${renderMemoBody()}</div>`;
-  return html;
-}
-
-function memoModuleCount(key){
-  if (key === 'password' && isMemoLocked()) return 0;
-  if (key === 'period') return 0; // 经期记录不显示累加计数
-  return memoRecs(key).length;
-}
-function weekdayCN(ds){ return '周' + '日一二三四五六'[new Date(ds + 'T00:00:00').getDay()]; }
-function changePeriodModuleDate(delta){ periodModuleDate = addDays(periodModuleDate, delta); renderPage('memo',''); }
-function changeLoveModuleDate(delta){ loveModuleDate = addDays(loveModuleDate, delta); renderPage('memo',''); }
-function changeMemoNoteDate(delta){ memoNoteDate = addDays(memoNoteDate, delta); renderPage('memo',''); }
-function changePasswordModuleDate(delta){ passwordModuleDate = addDays(passwordModuleDate, delta); renderPage('memo',''); }
-function switchMemoModule(key){
-  memoModule = key;
-  if (key === 'period') { periodEntryStart = periodModuleDate; periodEntryEnd = addDays(periodModuleDate, 4); }
-  renderPage('memo','');
-}
-function refreshMemoBody(){
-  const el = document.getElementById('memoBody');
-  if (el) el.innerHTML = renderMemoBody();
-}
-
-function renderMemoBody(){
-  if (memoModule === 'period')   return renderPeriodModule();
-  if (memoModule === 'love')     return renderLoveModule();
-  if (memoModule === 'memo')     return renderMemoNoteModule();
-  if (memoModule === 'password') return renderPasswordModule();
-  return '';
-}
-
-/* ========================================================
-   ② 经期记录板块
-======================================================== */
-function renderPeriodModule(){
-  const d = periodModuleDate;
-  const cur = periodOfDate(d);
-  const all = memoRecs('period').slice().sort((a,b) => (b.start || '').localeCompare(a.start || ''));
-  let html = `<div class="memo-datebar mt-12 mb-12">
-    <button class="btn-icon" onclick="changePeriodModuleDate(-1)" title="前一天">◀</button>
-    <button class="btn btn-outline btn-sm" onclick="openDatePicker(periodModuleDate, function(v){ periodModuleDate=v; renderPage('memo',''); })">📅 ${d} ${weekdayCN(d)}</button>
-    <button class="btn-icon" onclick="changePeriodModuleDate(1)" title="后一天">▶</button>
-    ${d === today() ? '<span class="badge">今天</span>' : `<button class="btn btn-outline btn-sm" onclick="periodModuleDate=today();renderPage('memo','')">今天</button>`}
-  </div>`;
-
-  /* 周期概览 */
   const next = estimateNextPeriod();
   if (next) {
-    const gap = daysBetween(next, today());
-    const near = gap >= 0 && gap <= 7;
-    html += `<div class="memo-period-tip">🌸 已记录 <b>${all.length}</b> 次 · 平均周期约 <b>${avgCycle()}</b> 天 · 预计下次 <b>${next}</b>${near ? ' · 临近提醒：还有 ' + gap + ' 天' : ''}</div>`;
+    const plen = avgPeriodLen();
+    let cur = next, guard = 0;
+    while (guard < plen) { if (!marks[cur]) marks[cur] = 'predict'; cur = addDays(cur,1); guard++; }
+    const ovuDay = addDays(next, -14);
+    if (!marks[ovuDay]) marks[ovuDay] = 'ovu-day';
+    let oc = addDays(ovuDay, -5), g2 = 0;
+    while (g2 < 10) { if (!marks[oc]) marks[oc] = 'ovu'; oc = addDays(oc,1); g2++; }
   }
+  return marks;
+}
+function pad2(n){ return (n < 10 ? '0' : '') + n; }
 
+/* 经期记录主板块（类美柚） */
+function renderPeriodModule(){
+  const base = periodModuleDate;
+  const y = +base.slice(0,4), m = +base.slice(5,7);
+  const first = y + '-' + pad2(m) + '-01';
+  const lead = new Date(first + 'T00:00:00').getDay();
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const marks = periodMarkMap();
   const todayStr = today();
 
-  /* 本月经期（紧凑长方形卡片 + 开始记录弹窗） */
+  let html = '';
+
+  /* 状态卡 */
+  const cur = periodOfDate(todayStr);
   if (cur) {
-    const dayNo = daysBetween(d, cur.start) + 1;
-    const log = (cur.days || {})[d] || {};
-    const logTxt = (log.flow && log.flow !== FLOW_OPTS[0])
-      ? `今日：${log.flow}${log.pain && log.pain !== PAIN_OPTS[0] ? ' · 痛经' + log.pain : ''}${log.body && log.body !== BODY_OPTS[0] ? ' · ' + log.body : ''}`
-      : '';
-    html += `<div class="card period-current period-compact">
-      <div style="flex:1;min-width:0">
-        <div class="section-header" style="padding:0;margin:0"><h3>🌸 本月经期 · 第 ${dayNo} 天</h3></div>
-        <div class="period-today-head">${cur.start} ~ ${cur.end}（共 ${daysBetween(cur.end, cur.start) + 1} 天）${d === todayStr ? ' · 今天' : ''}</div>
-        ${logTxt ? `<div class="text-sm text-gray mt-4">${logTxt}</div>` : ''}
-      </div>
-      <button class="btn btn-primary btn-sm" onclick="openPeriodRecordModal()">开始记录</button>
-    </div>`;
-  } else if (d === todayStr) {
-    html += `<div class="card period-compact">
-      <div class="text-sm text-gray">🌸 今天还没记录经期</div>
-      <button class="btn btn-primary btn-sm" onclick="openPeriodRecordModal()">开始记录</button>
+    const dayNo = daysBetween(cur.start, todayStr) + 1;
+    const len = cur.end ? (daysBetween(cur.start, cur.end) + 1) : 0;
+    html += `<div class="period-status">
+      <div class="ps-big">处于月经期 · 第 ${dayNo} 天</div>
+      <div class="ps-sub">开始于 ${cur.start}${len ? ' · 预计共 ' + len + ' 天' : ' · 尚未结束'}</div>
+      <div class="ps-meta">已记录 ${Object.keys(cur.days||{}).length} 天 · 记得每天打卡血量 / 疼痛</div>
     </div>`;
   } else {
-    html += `<div class="card period-compact">
-      <div class="text-sm text-gray">🌸 ${d} 不在任何一次经期内</div>
-      <button class="btn btn-outline btn-sm" onclick="openPeriodRecordModal()">开始记录</button>
-    </div>`;
+    const next = estimateNextPeriod();
+    if (!next) {
+      html += `<div class="period-status">
+        <div class="ps-big">记录你的第一次经期 🌸</div>
+        <div class="ps-sub">点下方「记录一次经期」，选开始日期即可</div>
+        <div class="ps-meta">之后会自动推算周期与下月预测</div></div>`;
+    } else {
+      const gap = daysBetween(next, todayStr);
+      html += `<div class="period-status">
+        <div class="ps-big">预计 ${next} 来下次</div>
+        <div class="ps-sub">距离下次月经还有 <b>${gap}</b> 天 · 平均周期 ${avgCycle()} 天</div>
+        <div class="ps-meta">点日历上的日期可补记当天情况</div></div>`;
+    }
   }
 
+  /* 月份切换 + 日历 */
+  html += `<div class="card mt-16"><div class="period-cal-header">
+    <button class="btn-icon" onclick="changePeriodMonth(-1)" title="上个月">◀</button>
+    <div class="period-cal-title">${y} 年 ${m} 月<span class="period-cur-pill">${weekdayCN(todayStr)} ${todayStr.slice(5)}</span></div>
+    <button class="btn-icon" onclick="changePeriodMonth(1)" title="下个月">▶</button>
+  </div>`;
+  html += `<div class="period-legend">
+    <span><i style="background:#dfa0ba"></i>经期</span>
+    <span><i style="background:#f6dde7"></i>预测经期</span>
+    <span><i style="background:#c5a3e0"></i>排卵日</span>
+    <span><i style="background:#d4eef7"></i>排卵期</span>
+  </div>`;
 
-  /* 历史经期（含疼痛级别 / 身体不适 / 补充说明） */
-  const history = all.filter(r => !(cur && cur.id === r.id));
+  html += '<div class="period-calendar">';
+  ['日','一','二','三','四','五','六'].forEach(w => html += '<div class="period-cal-weekday">' + w + '</div>');
+  for (let i = 0; i < lead; i++) html += '<div class="period-cal-day empty"></div>';
+  for (let dd = 1; dd <= daysInMonth; dd++) {
+    const ds = y + '-' + pad2(m) + '-' + pad2(dd);
+    const cls = ['period-cal-day'];
+    if (marks[ds]) cls.push(marks[ds]);
+    if (ds === todayStr) cls.push('today');
+    const rec = periodOfDate(ds);
+    const log = rec && rec.days ? rec.days[ds] : null;
+    const mark = log && log.flow && log.flow !== '未记录' ? '●' : '';
+    html += '<div class="' + cls.join(' ') + '" onclick="periodPickDay(\'' + ds + '\')"><span class="num">' + dd + '</span>' + (mark ? '<span class="mark">' + mark + '</span>' : '') + '</div>';
+  }
+  html += '</div>';
+
+  const inMonth = memoRecs('period').filter(r => r.start && (r.start.slice(0,7) === base.slice(0,7) || (r.end||'').slice(0,7) === base.slice(0,7) || (r.start < first && (!r.end || r.end >= first))));
+  html += `<div class="period-actions">
+    <button class="btn btn-primary btn-sm" style="flex:1" onclick="periodQuickStart()">＋ 记录一次经期</button>
+    ${inMonth.length ? '<button class="btn btn-outline btn-sm" style="flex:1" onclick="openPeriodEditor(\'' + (inMonth.sort((a,b)=>b.start.localeCompare(a.start))[0].id) + '\')">✏️ 编辑本月经期</button>' : ''}
+  </div></div>`;
+
+  /* 历史经期 */
+  const history = memoRecs('period').slice().sort((a,b) => (b.start||'').localeCompare(a.start||''));
   html += `<div class="card mt-16"><div class="section-header"><h3>📚 历史经期</h3><span class="text-sm text-gray">共 ${history.length} 次</span></div>`;
   if (!history.length) html += '<div class="empty-state"><span class="emoji">🌸</span>暂无历史经期记录</div>';
   else history.forEach(r => {
@@ -9983,20 +10029,39 @@ function renderPeriodModule(){
     const notes = days.map(l => l.note).filter(Boolean);
     html += `<div class="memo-card">
       <div class="flex-between">
-        <div class="memo-card-title">🌸 ${r.start} ~ ${r.end}</div>
+        <div><div class="period-history-date">🌸 ${r.start}${r.end && r.end !== r.start ? ' ~ ' + r.end : (!r.end ? ' ~ 进行中' : '')}</div>
+        <div class="period-history-meta">共 ${r.end ? s.days : '进行中'} 天 · 已记录 ${s.filled} 天${worstPain ? ' · 最痛「' + worstPain + '」' : ''}</div></div>
         <div class="flex-row gap-sm">
-          <button class="btn-icon btn-sm" onclick="openPeriodEditor('${r.id}')" title="回看/修改">✏️</button>
+          <button class="btn-icon btn-sm" onclick="openPeriodEditor('${r.id}')" title="编辑">✏️</button>
           <button class="btn-icon btn-sm" onclick="deleteMemoRecord('${r.id}')" title="删除">🗑</button>
         </div>
       </div>
-      <div class="memo-card-meta">共 ${s.days} 天 · 已记录 ${s.filled} 天${worstPain ? ' · 最痛「' + worstPain + '」' : ''}</div>
-      ${bodies.length ? `<div class="mt-4">${bodies.map(b => `<span class="memo-tag" style="background:#f3e7ec;color:#a06a82">${b}</span>`).join(' ')}</div>` : ''}
-      ${notes.length ? `<div class="memo-card-body">说明：${escapeHTML(notes.join('；'))}</div>` : ''}
-      ${renderPeriodMini(r)}
+      ${bodies.length ? '<div class="mt-4">' + bodies.map(b => '<span class="memo-tag" style="background:#f3e7ec;color:#a06a82">' + b + '</span>').join(' ') + '</div>' : ''}
+      ${notes.length ? '<div class="memo-card-body">说明：' + escapeHTML(notes.join('；')) + '</div>' : ''}
     </div>`;
   });
   html += '</div>';
   return html;
+}
+function changePeriodMonth(delta){
+  let y = +periodModuleDate.slice(0,4), m = +periodModuleDate.slice(5,7) + delta;
+  if (m < 1) { m = 12; y--; } else if (m > 12) { m = 1; y++; }
+  periodModuleDate = y + '-' + pad2(m) + '-01';
+  renderPage('memo','');
+}
+function periodQuickStart(){
+  periodModuleDate = today();
+  periodEntryStart = today();
+  periodEntryEnd = addDays(today(), 4);
+  periodRecordEditId = null;
+  renderPeriodRecordModal();
+}
+function periodPickDay(ds){
+  periodModuleDate = ds;
+  const cur = periodOfDate(ds);
+  if (cur) { periodEntryStart = cur.start; periodEntryEnd = cur.end || addDays(cur.start, 4); periodRecordEditId = cur.id; }
+  else { periodEntryStart = ds; periodEntryEnd = addDays(ds, 4); periodRecordEditId = null; }
+  renderPeriodRecordModal();
 }
 
 /* 经期回看 / 修改 */
@@ -10004,7 +10069,7 @@ function openPeriodEditor(id){
   const r = DB.memoData.records.find(x => x.id === id);
   if (!r) return;
   periodEditStart = r.start || today();
-  periodEditEnd   = r.end || today();
+  periodEditEnd   = r.end || addDays(r.start || today(), 4);
   renderPeriodEditorModal(id);
 }
 function renderPeriodEditorModal(id){
@@ -10029,7 +10094,7 @@ function renderPeriodEditorModal(id){
   showModal(`<div class="modal-title">经期记录 · 回看与修改</div>
     <div class="flex-row gap-sm flex-wrap mb-12">
       <div><label class="text-sm text-gray">开始</label><br><button class="btn btn-outline btn-sm mt-4" onclick="openDatePicker(periodEditStart, function(v){ periodEditStart=v; renderPeriodEditorModal('${id}'); })">📅 ${periodEditStart}</button></div>
-      <div><label class="text-sm text-gray">结束</label><br><button class="btn btn-outline btn-sm mt-4" onclick="openDatePicker(periodEditEnd, function(v){ periodEditEnd=v; renderPeriodEditorModal('${id}'); })">📅 ${periodEditEnd}</button></div>
+      <div><label class="text-sm text-gray">结束（留空=进行中）</label><br><button class="btn btn-outline btn-sm mt-4" onclick="openDatePicker(periodEditEnd, function(v){ periodEditEnd=v; renderPeriodEditorModal('${id}'); })">📅 ${periodEditEnd}</button></div>
     </div>
     <div class="period-day-head"><span>日期</span><span>经血量</span><span>痛经</span><span>不适</span><span>心情</span></div>
     <div class="period-day-list">${rows || '<div class="text-sm text-gray" style="padding:8px">请选择正确的起止日期</div>'}</div>
@@ -10064,28 +10129,28 @@ function savePeriod(id){
   saveDB(); closeModal(); renderPage('memo',''); showToast('经期记录已更新');
 }
 
-/* 经期：开始记录弹窗（含起始/结束日期 + 当日记录） */
+/* 经期：记录弹窗（点某天 / ＋记录一次经期） */
 function openPeriodRecordModal(){
   const d = periodModuleDate;
   const cur = periodOfDate(d);
   periodEntryStart  = cur ? cur.start : d;
-  periodEntryEnd    = cur ? cur.end : addDays(d, 4);
+  periodEntryEnd    = cur ? (cur.end || addDays(cur.start, 4)) : addDays(d, 4);
   periodRecordEditId = cur ? cur.id : null;
   renderPeriodRecordModal();
 }
 function renderPeriodRecordModal(){
   const d = periodModuleDate;
   const cur = periodOfDate(d);
-  const log = (cur && cur.days || {})[d] || {};
+  const log = (cur && cur.days) ? (cur.days[d] || {}) : {};
   const isEdit = !!cur;
-  showModal(`<div class="modal-title">${isEdit ? '记录经期 · ' + d : '开始记录经期'}</div>
+  showModal(`<div class="modal-title">${isEdit ? '经期记录 · ' + d : '记录经期 · ' + d}</div>
     <div class="flex-row gap-sm flex-wrap mb-12">
       <div style="flex:1;min-width:132px"><label class="text-sm text-gray">开始日期</label><br>
         <button class="btn btn-outline btn-sm mt-4" onclick="openDatePicker(periodEntryStart, function(v){ periodEntryStart=v; if(daysBetween(periodEntryEnd,periodEntryStart)<0) periodEntryEnd=periodEntryStart; renderPeriodRecordModal(); })">📅 ${periodEntryStart}</button></div>
       <div style="flex:1;min-width:132px"><label class="text-sm text-gray">结束日期</label><br>
         <button class="btn btn-outline btn-sm mt-4" onclick="openDatePicker(periodEntryEnd, function(v){ periodEntryEnd=v; renderPeriodRecordModal(); })">📅 ${periodEntryEnd}</button></div>
     </div>
-    <div class="text-sm text-gray mb-12">正在记录 <b>${d}</b> 的当日情况</div>
+    <div class="text-sm text-gray mb-12">记录 <b>${d}</b> 当天情况${isEdit ? '' : '（自动归入本次经期）'}</div>
     <div class="period-form">
       <div class="period-field"><label>经血量</label>
         <select id="dayFlow">${FLOW_OPTS.map(o => `<option ${((log.flow || FLOW_OPTS[0]) === o) ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
@@ -10116,7 +10181,7 @@ function savePeriodRecord(){
     DB.memoData.records.push(r);
   } else {
     r.start = periodEntryStart;
-    r.end = periodEntryEnd;   // 弹窗内可调整结束日期（含延长）
+    r.end = periodEntryEnd;
   }
   r.days = r.days || {};
   const log = {
@@ -10143,6 +10208,7 @@ function renderPeriodMini(r){
   }
   return out + '</div>';
 }
+
 /* 经期提醒（推算下次 + 首页展示） */
 function getNextPeriod(){
   const ps = periodStarts();
@@ -10232,13 +10298,16 @@ function addLoveRecord(){
     title: title || '恋爱日记', content, mood: document.getElementById('loveMood').value,
     photos: lovePhotoDraft.slice(), time: Date.now()
   });
-  // 清空编辑表单
-  document.getElementById('loveTitle').value = '';
-  document.getElementById('loveContent').value = '';
-  const moodEl = document.getElementById('loveMood');
-  if (moodEl) moodEl.value = MOOD_OPTS[0];
-  lovePhotoDraft = [];
+  clearLoveForm();
   saveDB(); renderPage('memo',''); showToast('日记已保存');
+}
+function clearLoveForm(){
+  const t = document.getElementById('loveTitle'); if (t) t.value = '';
+  const c = document.getElementById('loveContent'); if (c) c.value = '';
+  const m = document.getElementById('loveMood'); if (m) m.value = MOOD_OPTS[0];
+  lovePhotoDraft = [];
+  const input = document.getElementById('lovePhotoInput'); if (input) input.value = '';
+  const box = document.getElementById('lovePhotos'); if (box) box.innerHTML = '';
 }
 /* 恋爱日记照片：上传 / 预览 / 删除（压缩后存 base64） */
 function renderLovePhotoDrafts(){
@@ -10297,11 +10366,9 @@ function renderMemoNoteModule(){
     <button class="btn btn-outline btn-sm" onclick="openDatePicker(memoNoteDate, function(v){ memoNoteDate=v; renderPage('memo',''); })">📅 ${d} ${weekdayCN(d)}</button>
     <button class="btn-icon" onclick="changeMemoNoteDate(1)" title="后一天">▶</button>
     ${d === today() ? '<span class="badge">今天</span>' : `<button class="btn btn-outline btn-sm" onclick="memoNoteDate=today();renderPage('memo','')">今天</button>`}
-    <div style="flex:1"></div>
-    <button class="btn btn-primary btn-sm" onclick="openNoteModal()">✍️ 写今日记录</button>
   </div>`;
 
-  html += `<div class="card mt-16"><div class="section-header"><h3>📆 ${d} 的备忘</h3><span class="text-sm text-gray">${dayRecs.length} 条</span></div>`;
+  html += `<div class="card mt-16"><div class="section-header"><h3>📝 今日备忘录</h3><div class="flex-row gap-sm"><button class="btn-icon btn-sm" onclick="openNoteModal()" title="编辑">✏️</button><span class="text-sm text-gray">${dayRecs.length} 条</span></div></div>`;
   if (!dayRecs.length) html += '<div class="empty-state"><span class="emoji">📝</span>这一天还没有备忘</div>';
   else dayRecs.forEach(r => { html += renderTextCard(r); });
   html += '</div>';
@@ -10336,7 +10403,7 @@ function addNoteRecord(){
 function openNoteModal(){
   showModal(`<div class="modal-title">写今日记录 · ${memoNoteDate}</div>
     <div class="mb-12"><label class="text-sm text-gray">备忘类型</label>
-      ${memoSubtypeDatalist('日常备忘')}</div>
+      ${memoSubtypePicker('日常备忘', 'm_memoSubtype')}</div>
     <div class="mb-12"><label class="text-sm text-gray">标题 / 对象</label>
       <input type="text" id="m_noteTitle" placeholder="例如：姐姐生日 / 妈妈喜欢的花" style="margin-top:4px"></div>
     <div class="mb-12"><label class="text-sm text-gray">内容</label>
@@ -10352,7 +10419,7 @@ function saveNoteFromModal(){
   if (!title && !content) { showToast('请输入标题或内容'); return; }
   DB.memoData.records.push({
     id:uid('rec'), category:'memo', date:memoNoteDate,
-    subtype: document.getElementById('m_memoSubtype').value,
+    subtype: readMemoSubtype('m_memoSubtype'),
     title: title || '备忘', content, time: Date.now()
   });
   saveDB(); closeModal(); renderPage('memo',''); showToast('备忘已保存');
@@ -10559,7 +10626,7 @@ function renderEditModal(id){
       <div class="mb-12"><label class="text-sm text-gray">备注</label><textarea id="emContent" rows="2" style="margin-top:4px">${escapeHTML(r.content || '')}</textarea></div>`;
   } else {
     const sub = r.category === 'memo'
-      ? `<div class="mb-12"><label class="text-sm text-gray">备忘类型</label>${memoSubtypeDatalistEdit('emSubtype', r.subtype || DEFAULT_MEMO_SUBTYPES[2])}</div>`
+      ? `<div class="mb-12"><label class="text-sm text-gray">备忘类型</label>${memoSubtypePicker(r.subtype || DEFAULT_MEMO_SUBTYPES[2], 'emSubtype')}</div>`
       : `<div class="mb-12"><label class="text-sm text-gray">当日心情</label><select id="emMood" style="margin-top:4px">${MOOD_OPTS.map(o => `<option ${(r.mood === o) ? 'selected' : ''}>${o}</option>`).join('')}</select></div>`;
     let extra = '';
     if (r.category === 'love') {
@@ -10636,7 +10703,7 @@ function saveMemoRecordEdit(id){
   r.title = (g('emTitle') || '').trim();
   r.content = g('emContent') || '';
   if (r.category === 'password') { r.account = (g('emAccount') || '').trim(); r.password = g('emPassword') || ''; }
-  if (r.category === 'memo') r.subtype = g('emSubtype');
+  if (r.category === 'memo') r.subtype = readMemoSubtype('emSubtype');
   if (r.category === 'love') { r.mood = g('emMood'); if (typeof editPhotoDraft !== 'undefined') r.photos = editPhotoDraft.slice(); }
   currentEditId = null;
   editPhotoDraft = [];
