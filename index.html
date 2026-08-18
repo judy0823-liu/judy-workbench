@@ -649,6 +649,19 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 }
 .sub-tab.active .memo-count { background:rgba(255,255,255,.55); }
 
+/* 模块切换 Tab */
+.memo-tabbar { display:flex; gap:8px; flex-wrap:wrap; }
+.memo-tab {
+  flex:1; min-width:64px;
+  padding:10px 6px; border-radius:var(--radius-sm);
+  border:1px solid var(--border-color); background:var(--green-lighter);
+  color:var(--text-gray); font-size:13px; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:3px;
+  transition:all .15s; white-space:nowrap;
+}
+.memo-tab.active { background:var(--green-active); border-color:var(--green-active); color:#fff; }
+.memo-tab:active { transform:scale(.97); }
+
 /* 恋爱日记照片 */
 .love-photos { display:flex; flex-wrap:wrap; gap:6px; }
 .love-photo { position:relative; width:72px; height:72px; border-radius:8px; overflow:hidden; border:1px solid var(--border-color); background:var(--green-lighter); }
@@ -7752,6 +7765,8 @@ let fitBodyCustomStart = null, fitBodyCustomEnd = null;
 let fitDietDate = today();
 let fitPlanWeekKey = fitWeekKeyOf(today());
 let fitPlanSelectedDay = today();
+let dietDraft = null;                             // 饮食录入弹窗暂存：{date, meal, values}
+let inFoodPicker = false;                         // 当前是否在食物选择器内（用于编辑后返回）
 let weightEntryDate = today();
 
 /* ----- 食物库（与参考图一致，含每 100g 营养） ----- */
@@ -8292,7 +8307,7 @@ function renderFitPlan() {
       const dayItems = pageItems.filter(it => it.dow === d);
       const isToday = pageThisWeek && d === todayDow;
       const isSelected = day === fitPlanSelectedDay;
-      g += '<div class="fit-day-card ' + (isToday ? 'today' : '') + ' ' + (isSelected ? 'selected' : '') + '" onclick="selectPlanDay(\'' + day + '\')">'
+      g += '<div class="fit-day-card ' + (isToday ? 'today' : '') + ' ' + (isSelected ? 'selected' : '') + '" data-day="' + day + '" onclick="selectPlanDay(\'' + day + '\')">'
         + '<div class="fit-day-head">' + ['一','二','三','四','五','六','日'][d-1] + ' · ' + day.slice(5).replace('-','.') + '</div>';
       if (dayItems.length === 0) {
         g += '<div class="fit-day-empty">休息 / 待安排</div>';
@@ -8319,35 +8334,13 @@ function renderFitPlan() {
     + buildWeekPage(nextMonday)
     + '</div></div>';
 
-  const selectedDow = fitDow(fitPlanSelectedDay);
-  const selectedWk = fitWeekKeyOf(fitPlanSelectedDay);
-  const selectedItems = fitPlanItems(selectedWk).filter(it => it.dow === selectedDow);
   const allEx = [];
   Object.keys(DB.exerciseRecords).forEach(d => DB.exerciseRecords[d].forEach((e, idx) => allEx.push({ date: d, idx, ...e })));
   allEx.sort((a, b) => b.time - a.time);
   const doneCount = allEx.length;
 
   html += '<div class="dashboard-grid">'
-    + '<div class="card">'
-    + '<div class="card-title">今日训练 <span style="float:right;font-size:12px;color:var(--text-light);font-weight:400">' + fitPlanSelectedDay.slice(5).replace('-','月') + '日 ' + fitDowName(fitPlanSelectedDay) + '</span></div>';
-  if (selectedItems.length === 0) {
-    html += '<div class="fit-empty-box">'
-      + '<div class="fit-empty-title">这一天没有训练安排</div>'
-      + '<div class="fit-empty-desc">从上方本周计划点击日期，或点击安排按钮添加。</div>'
-      + '</div>';
-  } else {
-    html += '<div class="fit-plan-list">';
-    selectedItems.forEach(it => {
-      const done = (it.doneDates || []).indexOf(fitPlanSelectedDay) >= 0;
-      html += '<div class="fit-plan-item ' + (done ? 'done' : '') + '" onclick="togglePlanDoneForDay(\'' + it.id + '\', \'' + fitPlanSelectedDay + '\')">'
-        + '<span class="fit-plan-check">' + (done ? '✓' : '') + '</span>'
-        + '<span class="fit-plan-name">' + escapeHTML(it.type) + (it.count ? ' ×' + it.count : '') + (it.note ? '<br><span style="font-size:11px;color:var(--text-light)">' + escapeHTML(it.note) + '</span>' : '') + '</span>'
-        + '<span class="fit-plan-dur">' + it.duration + ' 分钟</span>'
-        + '</div>';
-    });
-    html += '</div>';
-  }
-  html += '</div>'
+    + '<div class="card" id="fitTodayPlanPanel">' + renderTodayPlanPanel(fitPlanSelectedDay) + '</div>'
     + '<div class="card">'
     + '<div class="card-title">训练历史 <span style="float:right;font-size:12px;color:var(--text-light);font-weight:400">已完成 ' + doneCount + ' 次</span></div>';
   if (doneCount === 0) {
@@ -8364,9 +8357,37 @@ function renderFitPlan() {
   setTimeout(fitCenterWeekPages, 0);
   return html;
 }
+function renderTodayPlanPanel(day) {
+  const dow = fitDow(day);
+  const wk = fitWeekKeyOf(day);
+  const items = fitPlanItems(wk).filter(it => it.dow === dow);
+  let html = '<div class="card-title">今日训练 <span style="float:right;font-size:12px;color:var(--text-light);font-weight:400">' + day.slice(5).replace('-','月') + '日 ' + fitDowName(day) + '</span></div>';
+  if (items.length === 0) {
+    html += '<div class="fit-empty-box">'
+      + '<div class="fit-empty-title">这一天没有训练安排</div>'
+      + '<div class="fit-empty-desc">从上方本周计划点击日期，或点击安排按钮添加。</div>'
+      + '</div>';
+  } else {
+    html += '<div class="fit-plan-list">';
+    items.forEach(it => {
+      const done = (it.doneDates || []).indexOf(day) >= 0;
+      html += '<div class="fit-plan-item ' + (done ? 'done' : '') + '" onclick="togglePlanDoneForDay(\'' + it.id + '\', \'' + day + '\')">'
+        + '<span class="fit-plan-check">' + (done ? '✓' : '') + '</span>'
+        + '<span class="fit-plan-name">' + escapeHTML(it.type) + (it.count ? ' ×' + it.count : '') + (it.note ? '<br><span style="font-size:11px;color:var(--text-light)">' + escapeHTML(it.note) + '</span>' : '') + '</span>'
+        + '<span class="fit-plan-dur">' + it.duration + ' 分钟</span>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+  return html;
+}
 function selectPlanDay(day) {
   fitPlanSelectedDay = day;
-  switchPage('fitness', '');
+  document.querySelectorAll('.fit-day-card').forEach(el => el.classList.remove('selected'));
+  const active = document.querySelector('.fit-day-card[data-day="' + day + '"]');
+  if (active) active.classList.add('selected');
+  const panel = document.getElementById('fitTodayPlanPanel');
+  if (panel) panel.innerHTML = renderTodayPlanPanel(day);
 }
 function togglePlanDoneForDay(id, day) {
   event.stopPropagation();
@@ -8467,36 +8488,43 @@ function deleteWeightRecord(date, time) {
 }
 
 /* ===== 饮食录入 ===== */
-function addDietNew(date, meal) {
-  showModal(`
+function addDietNew(date, meal, values) {
+  dietDraft = { date, meal, values: values || {} };
+  showModal(renderDietFormHTML(date, meal, dietDraft.values));
+}
+function renderDietFormHTML(date, meal, values) {
+  values = values || {};
+  const units = ['克','个','份','片','ml','勺','杯','块','根'];
+  const unitOpts = units.map(u => `<option value="${u}" ${values.unit === u ? 'selected' : ''}>${u === '克' ? '克 (g)' : u}</option>`).join('');
+  return `
     <div class="modal-title">添加${meal}</div>
-    <div class="mb-12"><label class="text-sm text-gray">食物名称</label><input type="text" id="foodName" placeholder="从食物库选择或自定义" style="margin-top:4px"></div>
+    <div class="mb-12"><label class="text-sm text-gray">食物名称</label><input type="text" id="foodName" value="${escapeAttr(values.name || '')}" placeholder="从食物库选择或自定义" style="margin-top:4px"></div>
     <div class="flex-row gap-sm mb-12">
-      <div style="flex:1.2"><label class="text-sm text-gray">分量</label><input type="number" id="foodAmount" step="0.5" placeholder="如 100" style="margin-top:4px" oninput="calcFoodCal()"></div>
+      <div style="flex:1.2"><label class="text-sm text-gray">分量</label><input type="number" id="foodAmount" step="0.5" value="${escapeAttr(values.amount || '')}" placeholder="如 100" style="margin-top:4px" oninput="calcFoodCal()"></div>
       <div style="flex:1"><label class="text-sm text-gray">单位</label>
         <select id="foodUnit" style="margin-top:4px;width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box" onchange="togglePerG()">
-          <option value="克">克 (g)</option>
-          <option value="个">个</option>
-          <option value="份">份</option>
-          <option value="片">片</option>
-          <option value="ml">ml</option>
-          <option value="勺">勺</option>
-          <option value="杯">杯</option>
-          <option value="块">块</option>
-          <option value="根">根</option>
+          ${unitOpts}
         </select>
       </div>
     </div>
     <div class="flex-row gap-sm mb-12" id="perGRow" style="display:none">
-      <div style="flex:1"><label class="text-sm text-gray">每单位约多少克</label><input type="number" id="foodPerG" step="1" placeholder="如1个鸡蛋约50" style="margin-top:4px" oninput="calcFoodCal()"></div>
-      <div style="flex:1"><label class="text-sm text-gray">热量 (kcal)</label><input type="number" id="foodCal" placeholder="自动" style="margin-top:4px"></div>
+      <div style="flex:1"><label class="text-sm text-gray">每单位约多少克</label><input type="number" id="foodPerG" step="1" value="${escapeAttr(values.perG || '')}" placeholder="如1个鸡蛋约50" style="margin-top:4px" oninput="calcFoodCal()"></div>
+      <div style="flex:1"><label class="text-sm text-gray">热量 (kcal)</label><input type="number" id="foodCal" value="${escapeAttr(values.cal || '')}" placeholder="自动" style="margin-top:4px"></div>
     </div>
     <div class="mb-12"><button class="btn btn-outline btn-sm" onclick="openFoodLibraryFromDiet()">🥘 从食物库选择</button></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal()">取消</button>
       <button class="btn btn-primary" onclick="saveDietNew('${date}','${meal}')">保存</button>
     </div>
-  `);
+  `;
+}
+function renderFoodPickerHTML() {
+  return `
+    <div class="modal-title">选择食物</div>
+    <div class="mb-12"><input type="text" id="foodSearch" placeholder="搜索食物名称" style="width:100%" oninput="filterFoodLib()"></div>
+    <div id="foodLibGrid" class="fit-food-grid-modal"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="backToDietForm()">返回</button></div>
+  `;
 }
 function togglePerG() {
   const u = document.getElementById('foodUnit');
@@ -8504,28 +8532,28 @@ function togglePerG() {
   if (u && row) row.style.display = (u.value === '克') ? 'none' : 'flex';
 }
 function openFoodLibraryFromDiet() {
-  let ov = document.getElementById('dietFoodPickerOverlay');
-  if (!ov) {
-    ov = document.createElement('div');
-    ov.id = 'dietFoodPickerOverlay';
-    ov.className = 'modal-overlay show';
-    ov.style.zIndex = '2000';
-    document.body.appendChild(ov);
-  } else {
-    ov.classList.add('show');
+  if (dietDraft) {
+    dietDraft.values = {
+      name: (document.getElementById('foodName') || {}).value || '',
+      amount: (document.getElementById('foodAmount') || {}).value || '',
+      unit: (document.getElementById('foodUnit') || {}).value || '克',
+      perG: (document.getElementById('foodPerG') || {}).value || '',
+      cal: (document.getElementById('foodCal') || {}).value || ''
+    };
   }
-  ov.innerHTML = `
-    <div class="modal-panel" style="max-width:min(92vw,520px);width:92vw;max-height:80vh;display:flex;flex-direction:column">
-      <div class="modal-title">选择食物</div>
-      <div class="mb-12"><input type="text" id="foodSearch" placeholder="搜索食物名称" style="width:100%" oninput="filterFoodLib()"></div>
-      <div id="foodLibGrid" class="fit-food-grid-modal" style="flex:1;min-height:180px"></div>
-      <div class="modal-footer"><button class="btn btn-outline" onclick="closeDietFoodPicker()">关闭</button></div>
-    </div>`;
+  inFoodPicker = true;
+  showModal(renderFoodPickerHTML());
   renderFoodLibGrid();
 }
+function backToDietForm() {
+  inFoodPicker = false;
+  if (!dietDraft) { closeModal(); return; }
+  showModal(renderDietFormHTML(dietDraft.date, dietDraft.meal, dietDraft.values));
+  togglePerG();
+  calcFoodCal();
+}
 function closeDietFoodPicker() {
-  const ov = document.getElementById('dietFoodPickerOverlay');
-  if (ov) ov.classList.remove('show');
+  backToDietForm();
 }
 function filterFoodLib() {
   renderFoodLibGrid();
@@ -8582,24 +8610,36 @@ function saveFoodEdit(id) {
   const fa = parseFloat(document.getElementById('efF').value) || 0;
   f.per100 = { cal, p, c, f:fa };
   saveDB();
-  closeModal();
-  renderFoodLibGrid();
+  if (inFoodPicker) {
+    showModal(renderFoodPickerHTML());
+    renderFoodLibGrid();
+  } else {
+    closeModal();
+    renderFoodLibGrid();
+  }
   showToast('食物已更新');
 }
 function deleteFoodItem(id) {
   DB.foodLibrary = (DB.foodLibrary || []).filter(x => x.id !== id);
-  saveDB(); renderFoodLibGrid();
+  saveDB();
+  if (inFoodPicker) {
+    showModal(renderFoodPickerHTML());
+    renderFoodLibGrid();
+  } else {
+    renderFoodLibGrid();
+  }
 }
 function pickFood(name) {
-  const n = document.getElementById('foodName');
-  const a = document.getElementById('foodAmount');
-  const u = document.getElementById('foodUnit');
-  if (n) n.value = name;
-  if (u) u.value = '克';
-  if (a && !a.value) a.value = 100;
-  if (u) togglePerG();
-  calcFoodCal();
-  closeDietFoodPicker();
+  inFoodPicker = false;
+  if (dietDraft) {
+    dietDraft.values = dietDraft.values || {};
+    dietDraft.values.name = name;
+    dietDraft.values.unit = dietDraft.values.unit || '克';
+    dietDraft.values.amount = dietDraft.values.amount || '100';
+    showModal(renderDietFormHTML(dietDraft.date, dietDraft.meal, dietDraft.values));
+    togglePerG();
+    calcFoodCal();
+  }
 }
 function calcFoodCal() {
   const n = document.getElementById('foodName');
@@ -10768,6 +10808,61 @@ function deleteCountdown(id){
 function confirmDeleteCountdown(id){
   DB.memoData.countdowns = DB.memoData.countdowns.filter(x => x.id !== id);
   saveDB(); closeModal(); renderPage('memo',''); showToast('已删除');
+}
+
+/* 生活记事馆：模块切换 + 渲染分发 */
+function switchMemoModule(key){
+  memoModule = key;
+  renderPage('memo','');
+}
+function renderMemo(){
+  let html = '';
+
+  /* ① 计时卡片 */
+  html += '<div class="section-header mt-8"><h3>⏱️ 计时卡片</h3><button class="btn btn-outline btn-sm" onclick="addCountdown(false)">＋ 新增</button></div>';
+  const cds = DB.memoData.countdowns || [];
+  if (!cds.length) {
+    html += '<div class="empty-state"><span class="emoji">⏱️</span>还没有计时卡片，点右上角「＋ 新增」</div>';
+  } else {
+    html += '<div class="countdown-grid">';
+    cds.forEach(c => {
+      const d = c.startDate ? dateDiff(c.startDate, today()) : null;
+      const past = d !== null && d < 0;
+      const cls = 'countdown-card' + (c.fixed ? ' fixed' : '') + (past ? ' countdown-past' : '');
+      let numHtml;
+      if (d === null) numHtml = '未设置';
+      else if (d === 0) numHtml = '就是今天';
+      else if (d > 0) numHtml = '<span class="cd-pre">还有</span><b>' + d + '</b><span class="cd-suf">天</span>';
+      else numHtml = '<span class="cd-pre">已经</span><b>' + Math.abs(d) + '</b><span class="cd-suf">天</span>';
+      const acts = c.fixed
+        ? '<span class="countdown-lock">🔒</span>'
+        : '<button class="btn-icon btn-sm" onclick="deleteCountdown(\'' + c.id + '\')" title="删除">🗑</button>';
+      html += '<div class="' + cls + '">'
+        + '<div class="countdown-main">'
+        + '<div class="countdown-title">' + escapeHTML(c.title) + '</div>'
+        + '<div class="countdown-date">' + (c.startDate || '未设置日期') + '</div>'
+        + '</div>'
+        + '<div class="countdown-num">' + numHtml + '</div>'
+        + '<div class="countdown-acts"><button class="btn-icon btn-sm" onclick="editCountdown(\'' + c.id + '\')" title="编辑">✏️</button>' + acts + '</div>'
+        + '</div>';
+    });
+    html += '</div>';
+  }
+
+  /* 模块切换 Tab */
+  html += '<div class="memo-tabbar mt-16">';
+  MEMO_MODULES.forEach(m => {
+    html += '<button class="memo-tab ' + (memoModule === m.key ? 'active' : '') + '" onclick="switchMemoModule(\'' + m.key + '\')">' + m.emoji + ' ' + m.name + '</button>';
+  });
+  html += '</div>';
+
+  /* 当前模块内容 */
+  if (memoModule === 'period') html += renderPeriodModule();
+  else if (memoModule === 'love') html += renderLoveModule();
+  else if (memoModule === 'memo') html += renderMemoNoteModule();
+  else if (memoModule === 'password') html += renderPasswordModule();
+
+  return html;
 }
 
 function renderPage(page, subpage) {
