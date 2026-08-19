@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#C8D8BE">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -328,6 +331,7 @@ a { text-decoration:none; color:inherit; }
 .btn-outline { background: transparent; border:1px solid var(--green-active); color:var(--text-black); }
 .btn-outline:hover { background: var(--green-light); }
 .btn-sm { padding: 5px 10px; font-size:12px; }
+.btn:disabled { opacity:0.45; cursor:not-allowed; }
 .btn-danger { background: var(--red); color: white; }
 .btn-icon {
   width:30px; height:30px;
@@ -713,11 +717,11 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .period-dot {
   width:26px; height:22px; line-height:22px; text-align:center;
   font-size:10px; border-radius:6px;
-  background:#f1eaee; color:#9c8592; border:1px solid #ece0e6;
+  background:#e8f0e4; color:#5f8c7c; border:1px solid #d2e4da;
 }
-.period-dot.lvl1 { background:#f6dde7; color:#a4657f; }
-.period-dot.lvl2 { background:#eec3d4; color:#8d4c67; }
-.period-dot.lvl3 { background:#dfa0ba; color:#fff; }
+.period-dot.lvl1 { background:#e8f0e4; color:#5f8c7c; }
+.period-dot.lvl2 { background:#bfd8cd; color:#3d6b5c; }
+.period-dot.lvl3 { background:#7ba89a; color:#fff; }
 
 /* 经期：逐日编辑表 */
 .period-day-head, .period-day-row {
@@ -732,29 +736,54 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .period-day-label { font-size:12px; color: var(--text-gray); }
 .period-day-row select, .period-day-row input { font-size:11px; padding:5px 4px; margin:0; }
 
-/* 经期：状态卡 */
-.period-status { background:linear-gradient(135deg,#fbf2f6,#fff); border:1px solid #eedbe5; border-radius:var(--radius); padding:16px 14px; text-align:center; margin-bottom:12px; }
-.period-status .ps-big { font-size:34px; font-weight:700; color:#c98fa6; line-height:1.2; }
-.period-status .ps-sub { font-size:13px; color:#8a6a78; margin-top:6px; }
-.period-status .ps-meta { font-size:11px; color:#a98b99; margin-top:4px; }
-/* 经期：图例 + 日历 */
+/* 经期：状态卡（主题绿） */
+.period-status { background:#f4f8f1; border:1px solid #d6e6dd; border-radius:var(--radius); padding:12px 14px; text-align:center; margin-bottom:12px; }
+.period-status .ps-big { font-size:18px; font-weight:600; color:#6e8c80; line-height:1.4; }
+.period-status .ps-sub { font-size:12px; color:#8aa89c; margin-top:4px; }
+.period-status .ps-meta { font-size:11px; color:#9bb3a6; margin-top:2px; }
+/* 经期：月份切换 + 图例 + 日历 */
+.period-cal-header { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px; }
+.period-cal-title { font-size:16px; font-weight:600; color:var(--text-black); }
 .period-legend { display:flex; gap:12px; flex-wrap:wrap; margin:10px 0; font-size:11px; color:var(--text-gray); }
 .period-legend span { display:inline-flex; align-items:center; gap:4px; }
-.period-legend i { width:11px; height:11px; border-radius:50%; display:inline-block; }
+.period-legend i { width:11px; height:11px; border-radius:50%; display:inline-block; box-sizing:border-box; }
+.period-legend i.period { background:#9fbfb2; }
+.period-legend i.predict { background:transparent; border:1.5px solid #cfe3d6; }
+.period-legend i.ovu-day { background:#e9b384; }
+.period-legend i.ovu { background:transparent; border:1.5px solid #f5deb8; }
 .period-calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; text-align:center; }
 .period-cal-weekday { font-size:11px; color:var(--text-light); padding:4px 0; }
 .period-cal-day { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:50%; font-size:13px; color:var(--text-black); position:relative; cursor:pointer; }
 .period-cal-day .num { line-height:1; }
 .period-cal-day .mark { font-size:8px; margin-top:1px; opacity:.85; }
-.period-cal-day.period { background:#dfa0ba; color:#fff; }
-.period-cal-day.predict { background:#f6dde7; color:#a4657f; }
-.period-cal-day.ovu-day { background:#c5a3e0; color:#fff; }
-.period-cal-day.ovu { background:#d4eef7; color:#4a7a8a; }
-.period-cal-day.today { box-shadow:0 0 0 2px #8a6a78 inset; }
+.period-cal-day.period { background:#9fbfb2; color:#fff; }
+.period-cal-day.predict { background:repeating-linear-gradient(45deg,#cfe3d6 0,#cfe3d6 5px,#f4f8f1 5px,#f4f8f1 10px); color:#5a8a7a; }
+.period-cal-day.ovu-day { background:#e9b384; color:#fff; }
+.period-cal-day.ovu { background:repeating-linear-gradient(45deg,#f5deb8 0,#f5deb8 5px,#fff8ee 5px,#fff8ee 10px); color:#8c6a4a; }
+.period-cal-day.today { box-shadow:0 0 0 2px #5f8c7c inset; }
+.period-cal-day.selected { box-shadow:0 0 0 2px var(--green-dark) inset; }
+.period-cal-day.today.selected { box-shadow:0 0 0 3px var(--green-dark) inset; }
 .period-cal-day.empty { cursor:default; }
-.period-cur-pill { display:inline-block; padding:2px 8px; border-radius:999px; background:#f3e7ec; color:#a06a82; font-size:11px; margin-left:6px; }
+.period-cur-pill { display:inline-block; padding:2px 8px; border-radius:999px; background:#e8f0e4; color:#5f8c7c; font-size:11px; margin-left:6px; }
 .period-history-date { font-weight:600; font-size:13px; color:var(--text-black); }
+.period-action-pill { border-radius:999px; padding:6px 16px; }
+.period-action-pill.period-action-cancel { background:#f4f8f1; border-color:#b8d4c4; color:#6e8c80; }
 .period-history-meta { font-size:11px; color:var(--text-light); margin-top:3px; }
+
+/* 经期：日历下方编辑面板 */
+.period-edit-panel { padding:14px; }
+.period-edit-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border-color); }
+.period-edit-title { font-size:15px; font-weight:600; color:var(--text-black); }
+.period-edit-title .date { font-size:12px; color:var(--text-light); font-weight:400; margin-left:6px; }
+.period-edit-section { margin-bottom:14px; }
+.period-edit-section label { display:block; font-size:12px; color:var(--text-gray); margin-bottom:6px; }
+.period-chip-group { display:flex; flex-wrap:wrap; gap:8px; }
+.period-chip { display:inline-flex; align-items:center; gap:4px; padding:7px 12px; border-radius:16px; border:1px solid var(--border-color); background:#fff; color:var(--text-gray); font-size:13px; cursor:pointer; transition:.15s; }
+.period-chip:hover { border-color:var(--green-active); }
+.period-chip.active { background:var(--green-active); color:#fff; border-color:var(--green-active); }
+.period-edit-note { width:100%; padding:9px 11px; border:1px solid var(--border-color); border-radius:10px; font-size:13px; margin-top:4px; }
+.period-edit-note:focus { border-color:var(--green-active); outline:none; }
+.period-edit-footer { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
 
 /* 密码本上锁 */
 .memo-lock-card { text-align:center; padding:34px 20px; }
@@ -1949,7 +1978,7 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-day-head { font-size:12px; color:var(--f4-muted); }
 .fit-day-empty { font-size:12px; color:var(--f4-muted); padding:6px 0; }
 .fit-day-item { font-size:12px; padding:5px 4px; background:var(--f4-sage-l); border-radius:8px; color:var(--f4-sage-d); cursor:pointer; }
-.fit-day-item.done { opacity:.55; }
+.fit-day-item.done { opacity:.75; }
 
 /* 表格 */
 .fit-table { width:100%; border-collapse:collapse; font-size:12px; min-width:520px; }
@@ -2162,15 +2191,15 @@ body.fit-dark .fitness-v4 .fit-countdown-title-input:focus { background:#2a2a2a;
       <div class="logo-badge">Judy的工作台</div>
     </div>
     <nav class="nav-menu" id="navMenu">
-      <div class="nav-item active" data-page="home" onclick="switchPage('home','')">
+      <div class="nav-item active" data-page="home" onclick="safeSwitchPage('home','')">
         <div class="nav-icon-box">🏠</div>
         <span>首页</span>
       </div>
-      <div class="nav-item" role="navigation" data-page="todo" onclick="switchPage('todo','')">
+      <div class="nav-item" role="navigation" data-page="todo" onclick="safeSwitchPage('todo','')">
         <div class="nav-icon-box">📋</div>
         <span>今日待办</span>
       </div>
-      <div class="nav-item" role="navigation" data-page="goal" onclick="switchPage('goal','')">
+      <div class="nav-item" role="navigation" data-page="goal" onclick="safeSwitchPage('goal','')">
         <div class="nav-icon-box">🎯</div>
         <span>学习目标管理台</span>
       </div>
@@ -2193,15 +2222,15 @@ body.fit-dark .fitness-v4 .fit-countdown-title-input:focus { background:#2a2a2a;
           <div class="nav-subsub-item" data-subpage="english-writing" onclick="event.stopPropagation();switchPage('english','english-writing')">商务写作</div>
         </div>
       </div>
-      <div class="nav-item" role="navigation" data-page="fitness" onclick="switchPage('fitness','')">
+      <div class="nav-item" role="navigation" data-page="fitness" onclick="safeSwitchPage('fitness','')">
         <div class="nav-icon-box">💪</div>
         <span>健身减重</span>
       </div>
-      <div class="nav-item" role="navigation" data-page="finance" onclick="switchPage('finance','')">
+      <div class="nav-item" role="navigation" data-page="finance" onclick="safeSwitchPage('finance','')">
         <div class="nav-icon-box">💰</div>
         <span>财务管理</span>
       </div>
-      <div class="nav-item" role="navigation" data-page="memo" onclick="switchPage('memo','')">
+      <div class="nav-item" role="navigation" data-page="memo" onclick="safeSwitchPage('memo','')">
         <div class="nav-icon-box">🏠</div>
         <span>生活记事馆</span>
       </div>
@@ -2770,26 +2799,37 @@ function jumpDateByInput() {
 
 /* 导航 */
 function switchPage(page, subpage) {
-  // 离开生活记事馆时，密码本自动重新上锁
-  if (page !== 'memo' && typeof memoUnlocked !== 'undefined' && memoUnlocked) { memoUnlocked = false; pwdShow = {}; }
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-sub-item').forEach(el => el.classList.remove('active'));
-  
-  const navItem = document.querySelector(`.nav-item[data-page="${page}"]`);
-  if (navItem) navItem.classList.add('active');
-  
-  if (subpage) {
-    const subItem = document.querySelector(`.nav-sub-item[data-subpage="${subpage}"]`);
-    if (subItem) subItem.classList.add('active');
-    const subsubItem = document.querySelector(`.nav-subsub-item[data-subpage="${subpage}"]`);
-    if (subsubItem) subsubItem.classList.add('active');
+  try {
+    // 离开生活记事馆时，密码本自动重新上锁
+    if (page !== 'memo' && typeof memoUnlocked !== 'undefined' && memoUnlocked) { memoUnlocked = false; pwdShow = {}; }
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-sub-item').forEach(el => el.classList.remove('active'));
+
+    const navItem = document.querySelector(`.nav-item[data-page="${page}"]`);
+    if (navItem) navItem.classList.add('active');
+
+    if (subpage) {
+      const subItem = document.querySelector(`.nav-sub-item[data-subpage="${subpage}"]`);
+      if (subItem) subItem.classList.add('active');
+      const subsubItem = document.querySelector(`.nav-subsub-item[data-subpage="${subpage}"]`);
+      if (subsubItem) subsubItem.classList.add('active');
+    }
+
+    const titles = { home:'首页', todo:'今日待办', goal:'学习目标管理台', english:'英语学习', fitness:'健身减重', finance:'财务管理', memo:'生活记事馆' };
+    const tb = document.getElementById('topbarTitle');
+    if (tb) tb.textContent = titles[subpage] || titles[page] || '';
+
+    renderPage(page, subpage);
+    closeSidebar();
+  } catch (e) {
+    console.error('[switchPage] 切换失败:', page, subpage, e);
+    const area = document.getElementById('contentArea');
+    if (area) area.innerHTML = `<div class="card" style="padding:20px"><h3>页面切换出错</h3><p class="text-sm text-gray">请按 F12 打开控制台，把红色报错截图给开发者。</p><p class="text-sm text-gray">错误：${escapeHTML(e.message)}</p></div>`;
+    closeSidebar();
   }
-  
-  const titles = { home:'首页', todo:'今日待办', goal:'学习目标管理台', english:'英语学习', fitness:'健身减重', finance:'财务管理', memo:'生活记事馆' };
-  document.getElementById('topbarTitle').textContent = titles[subpage] || titles[page] || '';
-  
-  renderPage(page, subpage);
-  closeSidebar();
+}
+function safeSwitchPage(page, subpage) {
+  switchPage(page, subpage);
 }
 
 function toggleSubmenu(el) {
@@ -2894,14 +2934,14 @@ function renderHome() {
     <div class="quick-btn" onclick="quickAddTodo()"><span class="icon">📋</span><span class="label">新增待办</span></div>
     <div class="quick-btn" onclick="quickAddBill()"><span class="icon">💰</span><span class="label">记一笔</span></div>
     <div class="quick-btn" onclick="quickAddWeight()"><span class="icon">⚖️</span><span class="label">录入体重</span></div>
-    <div class="quick-btn" onclick="switchPage('english','english-overview')"><span class="icon">🌍</span><span class="label">英语学习</span></div>
-    <div class="quick-btn" onclick="switchPage('goal','')"><span class="icon">🎯</span><span class="label">目标打卡</span></div>
+    <div class="quick-btn" onclick="safeSwitchPage('english','english-overview')"><span class="icon">🌍</span><span class="label">英语学习</span></div>
+    <div class="quick-btn" onclick="safeSwitchPage('goal','')"><span class="icon">🎯</span><span class="label">目标打卡</span></div>
   </div>
 
   <!-- 数据卡片网格 -->
   <div class="dashboard-grid">
     <!-- 待办进度 -->
-    <div class="dash-card" onclick="switchPage('todo','')">
+    <div class="dash-card" onclick="safeSwitchPage('todo','')">
       <div class="dash-card-header">
         <span class="dash-card-title">📋 今日待办</span>
         <span class="dash-card-icon">📋</span>
@@ -2912,7 +2952,7 @@ function renderHome() {
     </div>
 
     <!-- 健身数据 -->
-    <div class="dash-card" onclick="switchPage('fitness','')">
+    <div class="dash-card" onclick="safeSwitchPage('fitness','')">
       <div class="dash-card-header">
         <span class="dash-card-title">💪 健身减重</span>
         <span class="dash-card-icon">💪</span>
@@ -2923,7 +2963,7 @@ function renderHome() {
     </div>
 
     <!-- 英语学习 -->
-    <div class="dash-card" onclick="switchPage('english','english-overview')">
+    <div class="dash-card" onclick="safeSwitchPage('english','english-overview')">
       <div class="dash-card-header">
         <span class="dash-card-title">🌍 英语学习</span>
         <span class="dash-card-icon">🌍</span>
@@ -2935,7 +2975,7 @@ function renderHome() {
     </div>
 
     <!-- 学习目标 -->
-    <div class="dash-card" onclick="switchPage('goal','')">
+    <div class="dash-card" onclick="safeSwitchPage('goal','')">
       <div class="dash-card-header">
         <span class="dash-card-title">🎯 学习目标</span>
         <span class="dash-card-icon">🎯</span>
@@ -2946,7 +2986,7 @@ function renderHome() {
     </div>
 
     <!-- 财务卡片 -->
-    <div class="dash-card" onclick="switchPage('finance','')">
+    <div class="dash-card" onclick="safeSwitchPage('finance','')">
       <div class="dash-card-header">
         <span class="dash-card-title">💰 财务管理</span>
         <span class="dash-card-icon">💰</span>
@@ -2971,7 +3011,7 @@ function renderHome() {
 
   <!-- 快捷入口 -->
   <div class="dashboard-grid">
-    <div class="dash-card" onclick="switchPage('todo','')">
+    <div class="dash-card" onclick="safeSwitchPage('todo','')">
       <div class="dash-card-header"><span class="dash-card-title">快捷入口</span></div>
       <div class="flex-row flex-wrap gap-sm mt-8">
         <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();quickAddTodo()">+待办</button>
@@ -3158,6 +3198,7 @@ let periodEntryEnd     = addDays(today(), 4); // 经期录入：结束日期
 let periodEditStart    = today();      // 经期编辑：开始日期
 let periodEditEnd      = today();      // 经期编辑：结束日期
 let periodRecordEditId = null;         // 经期「开始记录」弹窗：正在编辑的经期 id
+let periodSelectedDay  = today();      // 经期：日历中当前选中的编辑日期
 let pwdShow            = {};           // 密码本：可见性缓存
 let memoUnlocked       = false;        // 密码本：本次会话是否已解锁
 let memoEditDate       = today();      // 编辑弹窗：归属日期
@@ -8155,10 +8196,10 @@ function renderFitToday() {
     html += '<div class="fit-plan-list">';
     todayPlan.forEach(it => {
       const done = (it.doneDates || []).indexOf(t0) >= 0;
-      html += '<div class="fit-plan-item ' + (done ? 'done' : '') + '" onclick="togglePlanDone(\'' + it.id + '\')">'
-        + '<span class="fit-plan-check">' + (done ? '✓' : '') + '</span>'
-        + '<span class="fit-plan-name">' + escapeHTML(it.type) + '</span>'
-        + '<span class="fit-plan-dur">' + it.duration + ' 分钟</span>'
+      html += '<div class="fit-plan-item ' + (done ? 'done' : '') + '">'
+        + '<span class="fit-plan-check" onclick="event.stopPropagation(); togglePlanDone(\'' + it.id + '\')">' + (done ? '✓' : '') + '</span>'
+        + '<span class="fit-plan-name" onclick="event.stopPropagation(); editPlanItem(\'' + it.id + '\', \'' + t0 + '\')">' + escapeHTML(it.type) + '</span>'
+        + '<span class="fit-plan-dur" onclick="event.stopPropagation(); editPlanItem(\'' + it.id + '\', \'' + t0 + '\')">' + getPlanItemCalories(it) + ' kcal · ' + it.duration + ' 分钟</span>'
         + '</div>';
     });
     html += '</div>';
@@ -8252,13 +8293,11 @@ function renderFitDiet() {
     + '<button class="btn btn-primary btn-sm" onclick="openFoodLibrary()">+ 添加食物</button>'
     + '</div>';
 
-  html += '<div class="fit-macro-grid">'
-    + '<div class="finance-box"><div class="label">热量</div><div class="value">' + Math.round(m.cal) + '<span style="font-size:13px;font-weight:500;margin-left:2px">/' + (fitCalorieTarget()) + ' kcal</span></div></div>'
-    + '<div class="finance-box"><div class="label">蛋白质</div><div class="value">' + Math.round(m.protein) + '<span style="font-size:13px;font-weight:500;margin-left:2px">/' + Math.round(mt.protein) + ' g</span></div></div>'
-    + '<div class="finance-box"><div class="label">碳水</div><div class="value">' + Math.round(m.carbs) + '<span style="font-size:13px;font-weight:500;margin-left:2px">/' + Math.round(mt.carbs) + ' g</span></div></div>'
-    + '<div class="finance-box"><div class="label">脂肪</div><div class="value">' + Math.round(m.fat) + '<span style="font-size:13px;font-weight:500;margin-left:2px">/' + Math.round(mt.fat) + ' g</span></div></div>'
-    + '</div>'
-    + '<div class="text-sm text-gray mt-8" style="text-align:center">摄入值自动累加今日饮食，总量按当前体重自动推算</div>';
+  const calTarget = fitCalorieTarget();
+  html += '<div class="fit-macro-grid" style="grid-template-columns:repeat(2,1fr)">'
+    + '<div class="finance-box"><div class="label">已摄入</div><div class="value">' + Math.round(m.cal) + '<span style="font-size:13px;font-weight:500;margin-left:2px">kcal</span></div></div>'
+    + '<div class="finance-box"><div class="label">剩余可摄入</div><div class="value">' + Math.round(Math.max(0, calTarget - m.cal)) + '<span style="font-size:13px;font-weight:500;margin-left:2px">/' + calTarget + ' kcal</span></div></div>'
+    + '</div>';
 
   const meals = ['早餐','午餐','晚餐','加餐'];
   meals.forEach(meal => {
@@ -8271,7 +8310,7 @@ function renderFitDiet() {
     } else {
       items.forEach(it => {
         const qty = (it.unit && it.unit !== '克') ? (it.amount + it.unit) : (it.grams ? (Math.round(it.grams) + 'g') : '');
-        html += '<div class="fit-meal-item">'
+        html += '<div class="fit-meal-item" ondblclick="editDietRecord(\'' + t + '\',\'' + meal + '\',' + it.time + ')" title="双击编辑">'
           + '<span>' + escapeHTML(it.name) + (qty ? ' <span class="fit-meal-grams">' + qty + '</span>' : '') + '</span>'
           + '<span class="fit-meal-cal">' + (it.calories || 0) + ' kcal</span>'
           + '</div>';
@@ -8293,7 +8332,7 @@ function renderFitPlan() {
   const monday = wk;
   const todayDow = fitDow(today());
 
-  let html = '<div class="flex-between mb-12"><span style="font-size:15px;font-weight:700;color:var(--text-black)">训练安排</span><button class="btn btn-primary btn-sm" onclick="quickAddPlan()">+ 安排训练</button></div>';
+  let html = '<div class="flex-between mb-12"><span style="font-size:15px;font-weight:700;color:var(--text-black)">训练安排</span></div>';
 
   const currentWeekKey = fitWeekKeyOf(today());
   const prevMonday = addDays(monday, -7);
@@ -8314,7 +8353,7 @@ function renderFitPlan() {
       } else {
         dayItems.forEach(it => {
           const done = (it.doneDates || []).indexOf(day) >= 0;
-          g += '<div class="fit-day-item ' + (done ? 'done' : '') + '">'
+          g += '<div class="fit-day-item ' + (done ? 'done' : '') + '" onclick="editPlanItem(\'' + it.id + '\', \'' + day + '\')">'
             + '<span>' + escapeHTML(it.type) + (it.count ? ' ×' + it.count : '') + '</span><span>' + it.duration + '′</span>'
             + (it.note ? '<div style="font-size:11px;color:var(--text-light);margin-top:2px">' + escapeHTML(it.note) + '</div>' : '')
             + '</div>';
@@ -8361,20 +8400,20 @@ function renderTodayPlanPanel(day) {
   const dow = fitDow(day);
   const wk = fitWeekKeyOf(day);
   const items = fitPlanItems(wk).filter(it => it.dow === dow);
-  let html = '<div class="card-title">今日训练 <span style="float:right;font-size:12px;color:var(--text-light);font-weight:400">' + day.slice(5).replace('-','月') + '日 ' + fitDowName(day) + '</span></div>';
+  let html = '<div class="card-title">今日训练 <span style="float:right;font-size:12px;color:var(--text-light);font-weight:400">' + day.slice(5).replace('-','月') + '日 ' + fitDowName(day) + '</span><button class="btn btn-primary btn-sm" onclick="quickAddPlan(' + dow + ')" style="float:right;margin-right:8px">+ 安排训练</button></div>';
   if (items.length === 0) {
     html += '<div class="fit-empty-box">'
       + '<div class="fit-empty-title">这一天没有训练安排</div>'
-      + '<div class="fit-empty-desc">从上方本周计划点击日期，或点击安排按钮添加。</div>'
+      + '<div class="fit-empty-desc">点击右上角按钮添加。</div>'
       + '</div>';
   } else {
     html += '<div class="fit-plan-list">';
     items.forEach(it => {
       const done = (it.doneDates || []).indexOf(day) >= 0;
-      html += '<div class="fit-plan-item ' + (done ? 'done' : '') + '" onclick="togglePlanDoneForDay(\'' + it.id + '\', \'' + day + '\')">'
-        + '<span class="fit-plan-check">' + (done ? '✓' : '') + '</span>'
-        + '<span class="fit-plan-name">' + escapeHTML(it.type) + (it.count ? ' ×' + it.count : '') + (it.note ? '<br><span style="font-size:11px;color:var(--text-light)">' + escapeHTML(it.note) + '</span>' : '') + '</span>'
-        + '<span class="fit-plan-dur">' + it.duration + ' 分钟</span>'
+      html += '<div class="fit-plan-item ' + (done ? 'done' : '') + '">'
+        + '<span class="fit-plan-check" onclick="event.stopPropagation(); togglePlanDoneForDay(\'' + it.id + '\', \'' + day + '\')">' + (done ? '✓' : '') + '</span>'
+        + '<span class="fit-plan-name" onclick="event.stopPropagation(); editPlanItem(\'' + it.id + '\', \'' + day + '\')">' + escapeHTML(it.type) + (it.count ? ' ×' + it.count : '') + (it.note ? '<br><span style="font-size:11px;color:var(--text-light)">' + escapeHTML(it.note) + '</span>' : '') + '</span>'
+        + '<span class="fit-plan-dur" onclick="event.stopPropagation(); editPlanItem(\'' + it.id + '\', \'' + day + '\')">' + getPlanItemCalories(it) + ' kcal · ' + it.duration + ' 分钟</span>'
         + '</div>';
     });
     html += '</div>';
@@ -8401,12 +8440,17 @@ function togglePlanDoneForDay(id, day) {
     if (DB.exerciseRecords[day]) DB.exerciseRecords[day] = DB.exerciseRecords[day].filter(e => e.planId !== it.id);
   } else {
     it.doneDates.push(day);
-    const x = EXERCISE_LIBRARY.find(e => e.name === it.type);
-    const cal = it.calManual ? it.calManual : (x ? exCalorie(x.met, it.duration) : 0);
+    const cal = getPlanItemCalories(it);
     if (!DB.exerciseRecords[day]) DB.exerciseRecords[day] = [];
     DB.exerciseRecords[day].push({ planId: it.id, type: it.type, duration: it.duration, count: it.count, note: it.note, calories: cal, time: Date.now() });
   }
   saveDB(); switchPage('fitness', '');
+}
+function getPlanItemCalories(it) {
+  if (!it) return 0;
+  if (it.calManual) return it.calManual;
+  const x = EXERCISE_LIBRARY.find(e => e.name === it.type);
+  return x ? exCalorie(x.met, it.duration) : 0;
 }
 
 /* ===== 公共头部（大标题 + 副标题 + 右上角操作） ===== */
@@ -8492,12 +8536,12 @@ function addDietNew(date, meal, values) {
   dietDraft = { date, meal, values: values || {} };
   showModal(renderDietFormHTML(date, meal, dietDraft.values));
 }
-function renderDietFormHTML(date, meal, values) {
+function renderDietFormHTML(date, meal, values, isEdit) {
   values = values || {};
   const units = ['克','个','份','片','ml','勺','杯','块','根'];
   const unitOpts = units.map(u => `<option value="${u}" ${values.unit === u ? 'selected' : ''}>${u === '克' ? '克 (g)' : u}</option>`).join('');
   return `
-    <div class="modal-title">添加${meal}</div>
+    <div class="modal-title">${isEdit ? '编辑' : '添加'}${meal}</div>
     <div class="mb-12"><label class="text-sm text-gray">食物名称</label><input type="text" id="foodName" value="${escapeAttr(values.name || '')}" placeholder="从食物库选择或自定义" style="margin-top:4px"></div>
     <div class="flex-row gap-sm mb-12">
       <div style="flex:1.2"><label class="text-sm text-gray">分量</label><input type="number" id="foodAmount" step="0.5" value="${escapeAttr(values.amount || '')}" placeholder="如 100" style="margin-top:4px" oninput="calcFoodCal()"></div>
@@ -8514,7 +8558,8 @@ function renderDietFormHTML(date, meal, values) {
     <div class="mb-12"><button class="btn btn-outline btn-sm" onclick="openFoodLibraryFromDiet()">🥘 从食物库选择</button></div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveDietNew('${date}','${meal}')">保存</button>
+      ${isEdit ? `<button class="btn btn-danger" onclick="deleteDiet('${date}','${meal}',${values.time || dietDraft.editTime}); closeModal()">删除</button>` : ''}
+      <button class="btn btn-primary" onclick="${isEdit ? 'saveDietEdit()' : "saveDietNew('" + date + "','" + meal + "')"}">保存</button>
     </div>
   `;
 }
@@ -8675,6 +8720,43 @@ function saveDietNew(date, meal) {
   DB.dietRecords[date].push({ name, unit: unit, amount: amount || null, perUnitG: unit === '克' ? null : (perG || null), grams: grams || null, calories: cal, protein: p, carbs: c2, fat: fa, meal, time: Date.now() });
   saveDB(); closeModal(); switchPage('fitness', ''); showToast('已添加：' + name);
 }
+function editDietRecord(date, meal, time) {
+  const rec = (DB.dietRecords[date] || []).find(d => d.meal === meal && d.time === time);
+  if (!rec) return;
+  dietDraft = { date, meal, editTime: time, values: {
+    name: rec.name || '',
+    amount: rec.amount != null ? rec.amount : (rec.grams || ''),
+    unit: rec.unit || '克',
+    perG: rec.perUnitG || '',
+    cal: rec.calories || ''
+  }};
+  showModal(renderDietFormHTML(date, meal, dietDraft.values, true));
+  setTimeout(togglePerG, 0);
+}
+function saveDietEdit() {
+  if (!dietDraft || !dietDraft.editTime) { closeModal(); return; }
+  const date = dietDraft.date, meal = dietDraft.meal, time = dietDraft.editTime;
+  const name = document.getElementById('foodName').value.trim();
+  const unit = document.getElementById('foodUnit').value;
+  const amount = parseFloat(document.getElementById('foodAmount').value) || 0;
+  const perG = unit === '克' ? 1 : (parseFloat(document.getElementById('foodPerG').value) || 0);
+  let cal = parseInt(document.getElementById('foodCal').value) || 0;
+  if (!name) { showToast('请输入食物名称'); return; }
+  const grams = unit === '克' ? amount : (amount * perG);
+  const f = fitFoodByName(name);
+  let p = null, c2 = null, fa = null;
+  if (f && grams) {
+    cal = Math.round(f.per100.cal * grams / 100);
+    p = +(f.per100.p * grams / 100).toFixed(1);
+    c2 = +(f.per100.c * grams / 100).toFixed(1);
+    fa = +(f.per100.f * grams / 100).toFixed(1);
+  } else if (!cal) { showToast('请输入热量'); return; }
+  if (!DB.dietRecords[date]) DB.dietRecords[date] = [];
+  const idx = DB.dietRecords[date].findIndex(d => d.meal === meal && d.time === time);
+  const next = { name, unit: unit, amount: amount || null, perUnitG: unit === '克' ? null : (perG || null), grams: grams || null, calories: cal, protein: p, carbs: c2, fat: fa, meal, time: Date.now() };
+  if (idx >= 0) DB.dietRecords[date][idx] = next; else DB.dietRecords[date].push(next);
+  saveDB(); closeModal(); switchPage('fitness', ''); showToast('已更新：' + name);
+}
 function deleteDiet(date, meal, time) {
   if (!DB.dietRecords[date]) return;
   DB.dietRecords[date] = DB.dietRecords[date].filter(d => !(d.meal === meal && d.time === time));
@@ -8781,6 +8863,48 @@ function deletePlanItem(id) {
   const wk = fitPlanWeekKey;
   if (DB.fitnessPlan[wk]) { DB.fitnessPlan[wk] = DB.fitnessPlan[wk].filter(it => it.id !== id); saveDB(); switchPage('fitness', ''); }
 }
+function editPlanItem(id, day) {
+  const wk = fitWeekKeyOf(day || today());
+  const it = (DB.fitnessPlan[wk] || []).find(x => x.id === id);
+  if (!it) return;
+  fitPlanWeekKey = wk;
+  let chips = '';
+  EXERCISE_LIBRARY.forEach(x => { chips += '<button type="button" class="food-chip" onclick="fillPlan(\'' + x.name + '\')">' + x.name + '</button>'; });
+  const d = it.dow;
+  const title = '编辑训练（周' + ['一','二','三','四','五','六','日'][d-1] + '）';
+  const done = day && (it.doneDates || []).indexOf(day) >= 0;
+  showModal(`
+    <div class="modal-title">${title}</div>
+    <div class="mb-12"><label class="text-sm text-gray">运动项目</label><input type="text" id="planType" value="${escapeAttr(it.type)}" placeholder="如：慢跑、跳绳、力量训练" style="margin-top:4px"></div>
+    <div class="flex-row gap-sm mb-12">
+      <div style="flex:1"><label class="text-sm text-gray">时长（分钟）</label><input type="number" id="planDur" value="${it.duration || 30}" style="margin-top:4px"></div>
+      <div style="flex:1"><label class="text-sm text-gray">数量（可选，如跳绳500）</label><input type="number" id="planCount" value="${it.count || ''}" placeholder="个/组" style="margin-top:4px"></div>
+    </div>
+    <div class="mb-12"><label class="text-sm text-gray">备注（可选，如深蹲50个）</label><input type="text" id="planNote" value="${escapeAttr(it.note || '')}" placeholder="记录细节" style="margin-top:4px"></div>
+    <div class="mb-12"><label class="text-sm text-gray">消耗卡路里(kcal)（可选，留空自动估算）</label><input type="number" id="planCal" value="${it.calManual || ''}" placeholder="自动" style="margin-top:4px"></div>
+    <div class="mb-12"><label class="text-sm text-gray">常见项目</label><div class="food-chips">${chips}</div></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-danger" onclick="deletePlanItem('${id}'); closeModal()">删除</button>
+      ${day ? `<button class="btn btn-outline" onclick="closeModal(); togglePlanDoneForDay('${id}','${day}')">${done ? '取消完成' : '标记完成'}</button>` : ''}
+      <button class="btn btn-primary" onclick="savePlanEdit('${id}', ${d})">保存</button>
+    </div>
+  `);
+}
+function savePlanEdit(id, dow) {
+  const wk = fitPlanWeekKey;
+  const it = (DB.fitnessPlan[wk] || []).find(x => x.id === id);
+  if (!it) return;
+  const type = document.getElementById('planType').value.trim();
+  const duration = parseInt(document.getElementById('planDur').value) || 0;
+  const count = parseInt(document.getElementById('planCount').value) || 0;
+  const note = document.getElementById('planNote').value.trim();
+  const calManual = parseInt(document.getElementById('planCal').value) || 0;
+  if (!type) { showToast('请输入运动项目'); return; }
+  if (!duration) { showToast('请输入时长'); return; }
+  it.type = type; it.duration = duration; it.count = count || null; it.note = note || null; it.calManual = calManual || null;
+  saveDB(); closeModal(); switchPage('fitness', ''); showToast('训练已更新');
+}
 function togglePlanDone(id) {
   const wk = fitWeekKeyOf(today());
   const it = (DB.fitnessPlan[wk] || []).find(x => x.id === id);
@@ -8793,8 +8917,7 @@ function togglePlanDone(id) {
     if (DB.exerciseRecords[t0]) DB.exerciseRecords[t0] = DB.exerciseRecords[t0].filter(e => e.planId !== it.id);
   } else {
     it.doneDates.push(t0);
-    const x = EXERCISE_LIBRARY.find(e => e.name === it.type);
-    const cal = it.calManual ? it.calManual : (x ? exCalorie(x.met, it.duration) : 0);
+    const cal = getPlanItemCalories(it);
     if (!DB.exerciseRecords[t0]) DB.exerciseRecords[t0] = [];
     DB.exerciseRecords[t0].push({ planId: it.id, type: it.type, duration: it.duration, count: it.count, note: it.note, calories: cal, time: Date.now() });
   }
@@ -9924,7 +10047,7 @@ function fmtCountdown(start){
   if (!start) return '未设置';
   const d = dateDiff(start, today());
   if (d === 0) return '就是今天';
-  return d > 0 ? '还有 ' + d + ' 天' : '已经 ' + Math.abs(d) + ' 天';
+  return d > 0 ? '已经 ' + d + ' 天' : '还有 ' + Math.abs(d) + ' 天';
 }
 function escapeAttr(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function memoRecs(cat){ return DB.memoData.records.filter(r => r.category === cat); }
@@ -9951,7 +10074,11 @@ function estimateNextPeriod(){
   return addDays(ps[ps.length-1], ps.length === 1 ? 28 : avgCycle());
 }
 function periodOfDate(d){
-  return memoRecs('period').find(r => r.start && daysBetween(d, r.start) >= 0 && (!r.end || daysBetween(r.end, d) >= 0)) || null;
+  return memoRecs('period').find(r => {
+    if (!r.start) return false;
+    const end = r.end || addDays(r.start, avgPeriodLen() - 1);
+    return daysBetween(r.start, d) >= 0 && daysBetween(d, end) >= 0;
+  }) || null;
 }
 function periodSummary(r){
   const days = (r.start && r.end) ? daysBetween(r.start, r.end) + 1 : 0;
@@ -9967,7 +10094,7 @@ function periodMarkMap(){
   memoRecs('period').forEach(r => {
     if (!r.start) return;
     let cur = r.start, guard = 0;
-    const end = r.end || today();
+    const end = r.end || addDays(r.start, avgPeriodLen() - 1);
     while (daysBetween(end, cur) >= 0 && guard < 45) { marks[cur] = 'period'; cur = addDays(cur,1); guard++; }
   });
   const next = estimateNextPeriod();
@@ -9983,6 +10110,11 @@ function periodMarkMap(){
   return marks;
 }
 function pad2(n){ return (n < 10 ? '0' : '') + n; }
+function weekdayCN(d){
+  if (!d) return '';
+  const w = new Date(d + 'T00:00:00').getDay();
+  return ['日','一','二','三','四','五','六'][w] || '';
+}
 
 /* 经期记录主板块（类美柚） */
 function renderPeriodModule(){
@@ -10001,9 +10133,10 @@ function renderPeriodModule(){
   if (cur) {
     const dayNo = daysBetween(cur.start, todayStr) + 1;
     const len = cur.end ? (daysBetween(cur.start, cur.end) + 1) : 0;
+    const lenLabel = cur.endPredicted ? '预计共' : '共';
     html += `<div class="period-status">
       <div class="ps-big">处于月经期 · 第 ${dayNo} 天</div>
-      <div class="ps-sub">开始于 ${cur.start}${len ? ' · 预计共 ' + len + ' 天' : ' · 尚未结束'}</div>
+      <div class="ps-sub">开始于 ${cur.start}${len ? ' · ' + lenLabel + ' ' + len + ' 天' : ' · 尚未结束'}</div>
       <div class="ps-meta">已记录 ${Object.keys(cur.days||{}).length} 天 · 记得每天打卡血量 / 疼痛</div>
     </div>`;
   } else {
@@ -10011,7 +10144,7 @@ function renderPeriodModule(){
     if (!next) {
       html += `<div class="period-status">
         <div class="ps-big">记录你的第一次经期 🌸</div>
-        <div class="ps-sub">点下方「记录一次经期」，选开始日期即可</div>
+        <div class="ps-sub">点下方「标记开始」即可</div>
         <div class="ps-meta">之后会自动推算周期与下月预测</div></div>`;
     } else {
       const gap = daysBetween(next, todayStr);
@@ -10029,10 +10162,10 @@ function renderPeriodModule(){
     <button class="btn-icon" onclick="changePeriodMonth(1)" title="下个月">▶</button>
   </div>`;
   html += `<div class="period-legend">
-    <span><i style="background:#dfa0ba"></i>经期</span>
-    <span><i style="background:#f6dde7"></i>预测经期</span>
-    <span><i style="background:#c5a3e0"></i>排卵日</span>
-    <span><i style="background:#d4eef7"></i>排卵期</span>
+    <span><i class="period"></i>经期</span>
+    <span><i class="predict"></i>预测经期</span>
+    <span><i class="ovu-day"></i>排卵日</span>
+    <span><i class="ovu"></i>排卵期</span>
   </div>`;
 
   html += '<div class="period-calendar">';
@@ -10043,6 +10176,7 @@ function renderPeriodModule(){
     const cls = ['period-cal-day'];
     if (marks[ds]) cls.push(marks[ds]);
     if (ds === todayStr) cls.push('today');
+    if (ds === periodSelectedDay) cls.push('selected');
     const rec = periodOfDate(ds);
     const log = rec && rec.days ? rec.days[ds] : null;
     const mark = log && log.flow && log.flow !== '未记录' ? '●' : '';
@@ -10050,11 +10184,10 @@ function renderPeriodModule(){
   }
   html += '</div>';
 
-  const inMonth = memoRecs('period').filter(r => r.start && (r.start.slice(0,7) === base.slice(0,7) || (r.end||'').slice(0,7) === base.slice(0,7) || (r.start < first && (!r.end || r.end >= first))));
-  html += `<div class="period-actions">
-    <button class="btn btn-primary btn-sm" style="flex:1" onclick="periodQuickStart()">＋ 记录一次经期</button>
-    ${inMonth.length ? '<button class="btn btn-outline btn-sm" style="flex:1" onclick="openPeriodEditor(\'' + (inMonth.sort((a,b)=>b.start.localeCompare(a.start))[0].id) + '\')">✏️ 编辑本月经期</button>' : ''}
-  </div></div>`;
+  html += '</div>';
+
+  /* 日历下方：当天记录面板 */
+  html += renderPeriodDayPanel();
 
   /* 历史经期 */
   const history = memoRecs('period').slice().sort((a,b) => (b.start||'').localeCompare(a.start||''));
@@ -10076,7 +10209,7 @@ function renderPeriodModule(){
           <button class="btn-icon btn-sm" onclick="deleteMemoRecord('${r.id}')" title="删除">🗑</button>
         </div>
       </div>
-      ${bodies.length ? '<div class="mt-4">' + bodies.map(b => '<span class="memo-tag" style="background:#f3e7ec;color:#a06a82">' + b + '</span>').join(' ') + '</div>' : ''}
+      ${bodies.length ? '<div class="mt-4">' + bodies.map(b => '<span class="memo-tag" style="background:#e8f0e4;color:#5f8c7c">' + b + '</span>').join(' ') + '</div>' : ''}
       ${notes.length ? '<div class="memo-card-body">说明：' + escapeHTML(notes.join('；')) + '</div>' : ''}
     </div>`;
   });
@@ -10090,27 +10223,148 @@ function changePeriodMonth(delta){
   renderPage('memo','');
 }
 function periodQuickStart(){
-  periodModuleDate = today();
-  periodEntryStart = today();
-  periodEntryEnd = addDays(today(), 4);
-  periodRecordEditId = null;
-  renderPeriodRecordModal();
+  periodSelectedDay = today();
+  renderPage('memo','');
 }
 function periodPickDay(ds){
-  periodModuleDate = ds;
-  const cur = periodOfDate(ds);
-  if (cur) { periodEntryStart = cur.start; periodEntryEnd = cur.end || addDays(cur.start, 4); periodRecordEditId = cur.id; }
-  else { periodEntryStart = ds; periodEntryEnd = addDays(ds, 4); periodRecordEditId = null; }
-  renderPeriodRecordModal();
+  periodSelectedDay = ds;
+  renderPage('memo','');
+}
+function getPeriodActionState(){
+  const d = periodSelectedDay || today();
+  const cur = periodOfDate(d);
+  if (!cur) return 'start';
+  if (cur.start === d) return 'cancel';
+  if (cur.endPredicted) return 'end';
+  return 'cancel';
+}
+function periodActionButtonHTML(){
+  const st = getPeriodActionState();
+  const cls = st === 'start' ? 'btn-primary' : 'btn-outline';
+  const extra = st === 'cancel' ? ' period-action-cancel' : '';
+  const txt = st === 'start' ? '标记开始' : (st === 'end' ? '标记结束' : '取消标记');
+  return `<button class="btn ${cls} btn-sm period-action-pill${extra}" onclick="periodActionClick()">${txt}</button>`;
+}
+function periodActionClick(){
+  const st = getPeriodActionState();
+  if (st === 'start') markPeriodStart();
+  else if (st === 'end') markPeriodEnd();
+  else cancelPeriodMark();
+}
+function cancelPeriodMark(){
+  const d = periodSelectedDay || today();
+  const cur = periodOfDate(d);
+  if (!cur) return;
+  if (confirm('确定取消这次经期标记吗？')) {
+    DB.memoData.records = DB.memoData.records.filter(r => r.id !== cur.id);
+    saveDB(); renderPage('memo',''); showToast('已取消标记');
+  }
+}
+function renderPeriodDayPanel(){
+  const d = periodSelectedDay;
+  const cur = periodOfDate(d);
+  const log = (cur && cur.days) ? (cur.days[d] || {}) : {};
+  const isOngoing = cur && cur.endPredicted;
+  const chip = (groupId, opts, val, iconFn) => opts.map(o => {
+    const active = (val || opts[0]) === o ? 'active' : '';
+    return `<button class="period-chip ${active}" type="button" onclick="setPeriodChip('${groupId}','${escapeAttr(o)}',this)">${iconFn ? iconFn(o) : ''}${escapeHTML(o)}</button>`;
+  }).join('');
+  const flowIcon = o => o === '少' ? '💧 ' : o === '中' ? '💧💧 ' : o === '多' ? '💧💧💧 ' : '';
+  const painIcon = o => o === '无痛' ? '' : '⚡ ';
+  const moodIcon = o => o.startsWith('😊') ? '' : o.startsWith('😐') ? '' : o.startsWith('😔') ? '' : o.startsWith('😣') ? '' : o.startsWith('🥱') ? '' : '';
+  return `<div class="card mt-16 period-edit-panel">
+    <div class="period-edit-header">
+      <div class="period-edit-title">记录经期<span class="date">${d} ${weekdayCN(d)}</span></div>
+      ${periodActionButtonHTML()}
+    </div>
+    <div class="period-edit-section">
+      <label>经血量</label>
+      <div class="period-chip-group">${chip('pedFlow', FLOW_OPTS, log.flow, flowIcon)}</div>
+      <input type="hidden" id="pedFlow" value="${escapeAttr(log.flow || FLOW_OPTS[0])}">
+    </div>
+    <div class="period-edit-section">
+      <label>痛经等级</label>
+      <div class="period-chip-group">${chip('pedPain', PAIN_OPTS, log.pain, painIcon)}</div>
+      <input type="hidden" id="pedPain" value="${escapeAttr(log.pain || PAIN_OPTS[0])}">
+    </div>
+    <div class="period-edit-section">
+      <label>身体不适</label>
+      <div class="period-chip-group">${chip('pedBody', BODY_OPTS, log.body)}</div>
+      <input type="hidden" id="pedBody" value="${escapeAttr(log.body || BODY_OPTS[0])}">
+    </div>
+    <div class="period-edit-section">
+      <label>当日心情</label>
+      <div class="period-chip-group">${chip('pedMood', MOOD_OPTS, log.mood, moodIcon)}</div>
+      <input type="hidden" id="pedMood" value="${escapeAttr(log.mood || MOOD_OPTS[1])}">
+    </div>
+    <div class="period-edit-section">
+      <label>补充说明</label>
+      <input type="text" id="pedNote" class="period-edit-note" value="${escapeAttr(log.note || '')}" placeholder="选填，例如：喝了红糖水后好转">
+    </div>
+    <div class="period-edit-footer">
+      ${!cur ? '<span class="text-sm text-gray">保存后将从 ' + d + ' 开始记录经期</span>' : ''}
+      <button class="btn btn-outline btn-sm" onclick="periodSelectedDay=null;renderPage('memo','')">收起</button>
+      <button class="btn btn-primary btn-sm" onclick="savePeriodDay()">保存记录</button>
+    </div>
+  </div>`;
+}
+function setPeriodChip(inputId, value, btn){
+  const input = document.getElementById(inputId);
+  if (input) input.value = value;
+  const container = btn.parentElement;
+  if (container) Array.from(container.children).forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function markPeriodStart(){
+  const d = periodSelectedDay || today();
+  const ongoing = memoRecs('period').find(r => r.start && (!r.end || r.endPredicted));
+  if (ongoing) { showToast('已有进行中的经期，请先标记结束'); return; }
+  const existing = periodOfDate(d);
+  if (existing) { showToast('该日期已在经期记录中'); return; }
+  const len = avgPeriodLen();
+  const projectedEnd = addDays(d, len - 1);
+  DB.memoData.records.push({ id: uid('rec'), category:'period', start:d, end:projectedEnd, endPredicted:true, days:{}, time:Date.now() });
+  saveDB(); renderPage('memo',''); showToast('已标记经期开始（预计 ' + len + ' 天）');
+}
+function markPeriodEnd(){
+  const d = periodSelectedDay || today();
+  let cur = memoRecs('period').find(r => r.start && r.endPredicted);
+  if (!cur) cur = periodOfDate(d);
+  if (!cur) { showToast('当前没有可结束的经期'); return; }
+  if (daysBetween(cur.start, d) < 0) { showToast('结束日期不能早于开始日期'); return; }
+  cur.end = d;
+  cur.endPredicted = false;
+  saveDB(); renderPage('memo',''); showToast('已标记经期结束');
+}
+function savePeriodDay(){
+  const d = periodSelectedDay;
+  if (!d) return;
+  let r = periodOfDate(d);
+  const isNew = !r;
+  if (!r) {
+    const projectedEnd = addDays(d, avgPeriodLen() - 1);
+    r = { id: uid('rec'), category:'period', start:d, end:projectedEnd, endPredicted:true, days:{}, time:Date.now() };
+    DB.memoData.records.push(r);
+  }
+  r.days = r.days || {};
+  const log = {
+    flow: document.getElementById('pedFlow').value,
+    pain: document.getElementById('pedPain').value,
+    body: document.getElementById('pedBody').value,
+    mood: document.getElementById('pedMood').value,
+    note: document.getElementById('pedNote').value.trim()
+  };
+  if (log.flow === FLOW_OPTS[0] && log.pain === PAIN_OPTS[0] && log.body === BODY_OPTS[0] && !log.note) delete r.days[d];
+  else r.days[d] = log;
+  saveDB(); renderPage('memo',''); showToast(isNew ? '经期已开始记录' : '记录已保存');
 }
 
 /* 经期回看 / 修改 */
 function openPeriodEditor(id){
   const r = DB.memoData.records.find(x => x.id === id);
   if (!r) return;
-  periodEditStart = r.start || today();
-  periodEditEnd   = r.end || addDays(r.start || today(), 4);
-  renderPeriodEditorModal(id);
+  periodSelectedDay = r.start || today();
+  renderPage('memo','');
 }
 function renderPeriodEditorModal(id){
   const r = DB.memoData.records.find(x => x.id === id);
@@ -10261,16 +10515,16 @@ function renderPeriodReminder(){
   const nxt = getNextPeriod();
   if (!nxt) return '';
   const gap = daysBetween(nxt.date, today());
-  const inCurrent = memoRecs('period').some(r => r.start && r.end && daysBetween(today(), r.start) >= 0 && daysBetween(r.end, today()) >= 0);
+  const inCurrent = memoRecs('period').some(r => r.start && r.end && daysBetween(r.start, today()) >= 0 && daysBetween(today(), r.end) >= 0);
   if (inCurrent) {
-    return `<div class="card period-reminder" style="border-left:4px solid #dfa8bf;background:#fbf2f6">
+      return `<div class="card period-reminder" style="border-left:4px solid #9fbfb2;background:#eef5f0">
       <div class="flex-row gap-sm flex-wrap" style="align-items:center">
         <span style="font-size:20px">🌸</span>
         <div style="flex:1;min-width:160px">
-          <div style="font-weight:700;color:#8a6a78">经期进行中</div>
+          <div style="font-weight:700;color:#5f8c7c">经期进行中</div>
           <div class="text-sm text-gray">好好照顾自己，记得保暖与休息</div>
         </div>
-        <button class="btn btn-outline btn-sm" onclick="switchPage('memo','');switchMemoModule('period')">查看记录</button>
+        <button class="btn btn-outline btn-sm" onclick="safeSwitchPage('memo','');switchMemoModule('period')">查看记录</button>
       </div>
     </div>`;
   }
@@ -10283,7 +10537,7 @@ function renderPeriodReminder(){
         <div style="font-weight:700;color:${near ? '#a05c74' : 'var(--green-dark)'}">${near ? '经期临近提醒' : '下次经期预测'}</div>
         <div class="text-sm text-gray">预计 <b>${nxt.date}</b> 来潮 · 还有 <b>${gap}</b> 天 · 平均周期 ${nxt.cycle} 天</div>
       </div>
-      <button class="btn btn-outline btn-sm" onclick="switchPage('memo','');switchMemoModule('period')">记录经期</button>
+      <button class="btn btn-outline btn-sm" onclick="safeSwitchPage('memo','');switchMemoModule('period')">记录经期</button>
     </div>
   </div>`;
 }
@@ -10811,6 +11065,10 @@ function confirmDeleteCountdown(id){
 }
 
 /* 生活记事馆：模块切换 + 渲染分发 */
+function changeLoveModuleDate(delta){ loveModuleDate = addDays(loveModuleDate, delta); renderPage('memo',''); }
+function changeMemoNoteDate(delta){ memoNoteDate = addDays(memoNoteDate, delta); renderPage('memo',''); }
+function changePasswordModuleDate(delta){ passwordModuleDate = addDays(passwordModuleDate, delta); renderPage('memo',''); }
+
 function switchMemoModule(key){
   memoModule = key;
   renderPage('memo','');
@@ -10827,13 +11085,13 @@ function renderMemo(){
     html += '<div class="countdown-grid">';
     cds.forEach(c => {
       const d = c.startDate ? dateDiff(c.startDate, today()) : null;
-      const past = d !== null && d < 0;
+      const past = d !== null && d > 0;
       const cls = 'countdown-card' + (c.fixed ? ' fixed' : '') + (past ? ' countdown-past' : '');
       let numHtml;
       if (d === null) numHtml = '未设置';
       else if (d === 0) numHtml = '就是今天';
-      else if (d > 0) numHtml = '<span class="cd-pre">还有</span><b>' + d + '</b><span class="cd-suf">天</span>';
-      else numHtml = '<span class="cd-pre">已经</span><b>' + Math.abs(d) + '</b><span class="cd-suf">天</span>';
+      else if (d > 0) numHtml = '<span class="cd-pre">已经</span><b>' + d + '</b><span class="cd-suf">天</span>';
+      else numHtml = '<span class="cd-pre">还有</span><b>' + Math.abs(d) + '</b><span class="cd-suf">天</span>';
       const acts = c.fixed
         ? '<span class="countdown-lock">🔒</span>'
         : '<button class="btn-icon btn-sm" onclick="deleteCountdown(\'' + c.id + '\')" title="删除">🗑</button>';
@@ -10868,16 +11126,23 @@ function renderMemo(){
 function renderPage(page, subpage) {
   curPage = page; curSub = subpage;
   const area = document.getElementById('contentArea');
-  if (page === 'home') area.innerHTML = renderHome();
-  else if (page === 'todo') area.innerHTML = renderTodo();
-  else if (page === 'english') area.innerHTML = renderEnglish(subpage);
-  else if (page === 'fitness') area.innerHTML = renderFitness();
-  else if (page === 'finance') area.innerHTML = renderFinance();
-  else if (page === 'memo') area.innerHTML = renderMemo();
-  else if (page === 'goal') area.innerHTML = renderGoal();
+  let html = '';
+  try {
+    if (page === 'home') html = renderHome();
+    else if (page === 'todo') html = renderTodo();
+    else if (page === 'english') html = renderEnglish(subpage);
+    else if (page === 'fitness') html = renderFitness();
+    else if (page === 'finance') html = renderFinance();
+    else if (page === 'memo') html = renderMemo();
+    else if (page === 'goal') html = renderGoal();
+  } catch (e) {
+    console.error('[renderPage] 渲染失败:', page, subpage, e);
+    html = `<div class="card" style="padding:20px"><h3>页面加载出错</h3><p class="text-sm text-gray">请按 F12 打开控制台，把红色报错截图给开发者。</p><p class="text-sm text-gray">错误：${escapeHTML(e.message)}</p></div>`;
+  }
+  if (area) area.innerHTML = html;
 
   // 页面渲染后绑定事件
-  afterRender(page, subpage);
+  try { afterRender(page, subpage); } catch (e) { console.error('[afterRender] 失败:', page, subpage, e); }
 }
 
 /* 日期栏更新 */
