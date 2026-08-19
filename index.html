@@ -748,18 +748,18 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .period-legend span { display:inline-flex; align-items:center; gap:4px; }
 .period-legend i { width:11px; height:11px; border-radius:50%; display:inline-block; box-sizing:border-box; }
 .period-legend i.period { background:#9fbfb2; }
-.period-legend i.predict { background:transparent; border:1.5px solid #cfe3d6; }
+.period-legend i.predict { background:transparent; border:1.5px dashed #9fbfb2; }
 .period-legend i.ovu-day { background:#e9b384; }
-.period-legend i.ovu { background:transparent; border:1.5px solid #f5deb8; }
+.period-legend i.ovu { background:transparent; border:1.5px dashed #e9b384; }
 .period-calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; text-align:center; }
 .period-cal-weekday { font-size:11px; color:var(--text-light); padding:4px 0; }
 .period-cal-day { aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-radius:50%; font-size:13px; color:var(--text-black); position:relative; cursor:pointer; }
 .period-cal-day .num { line-height:1; }
 .period-cal-day .mark { font-size:8px; margin-top:1px; opacity:.85; }
 .period-cal-day.period { background:#9fbfb2; color:#fff; }
-.period-cal-day.predict { background:repeating-linear-gradient(45deg,#cfe3d6 0,#cfe3d6 5px,#f4f8f1 5px,#f4f8f1 10px); color:#5a8a7a; }
+.period-cal-day.predict { background:#fff; border:1.5px dashed #9fbfb2; color:#6e8c80; }
 .period-cal-day.ovu-day { background:#e9b384; color:#fff; }
-.period-cal-day.ovu { background:repeating-linear-gradient(45deg,#f5deb8 0,#f5deb8 5px,#fff8ee 5px,#fff8ee 10px); color:#8c6a4a; }
+.period-cal-day.ovu { background:#fff; border:1.5px dashed #e9b384; color:#b5895e; }
 .period-cal-day.today { box-shadow:0 0 0 2px #5f8c7c inset; }
 .period-cal-day.selected { box-shadow:0 0 0 2px var(--green-dark) inset; }
 .period-cal-day.today.selected { box-shadow:0 0 0 3px var(--green-dark) inset; }
@@ -908,17 +908,15 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 }
 .sub-tabs::-webkit-scrollbar { display:none; }
 .sub-tab {
-  flex:1 1 auto;
-  min-width:0;
+  flex:0 0 auto;
+  min-width:auto;
   text-align:center;
-  padding: 8px 8px;
+  padding: 8px 14px;
   font-size:13px;
   font-weight:600;
   cursor:pointer;
   border-radius:var(--radius-sm);
   white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
   color: var(--text-gray);
   transition: all 0.2s;
 }
@@ -1868,7 +1866,7 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 
 /* 页面大标题 */
 .fit-page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; gap:12px; }
-.fit-page-title { font-family:'PingFang SC','Microsoft YaHei',sans-serif; font-size:26px; font-weight:700; color:var(--f4-text); line-height:1.2; }
+.fit-page-title { font-family:inherit; font-size:26px; font-weight:700; color:var(--f4-text); line-height:1.2; }
 .fit-page-subtitle { font-size:12px; color:var(--f4-muted); margin-top:4px; }
 .fit-page-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
 
@@ -1894,7 +1892,7 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-energy-row { display:flex; justify-content:space-around; padding:8px 0 16px; }
 .fit-energy-block { text-align:center; }
 .fit-energy-label { font-size:12px; color:var(--f4-muted); margin-bottom:4px; }
-.fit-energy-num { font-family:'PingFang SC','Microsoft YaHei',sans-serif; font-size:32px; font-weight:700; color:var(--f4-text); }
+.fit-energy-num { font-family:inherit; font-size:32px; font-weight:700; color:var(--f4-text); }
 .fit-energy-num span { font-size:13px; font-weight:500; color:var(--f4-muted); margin-left:3px; }
 .fit-macro-bars { display:flex; flex-direction:column; gap:10px; }
 .fit-macro-bar-row { display:flex; align-items:center; gap:10px; font-size:12px; }
@@ -1909,7 +1907,7 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 /* 身体趋势小卡 */
 .fit-trend-mini { cursor:pointer; }
 .fit-trend-label { font-size:12px; color:var(--f4-muted); margin-top:4px; }
-.fit-trend-big { font-family:'PingFang SC','Microsoft YaHei',sans-serif; font-size:32px; font-weight:700; margin:6px 0 12px; }
+.fit-trend-big { font-family:inherit; font-size:32px; font-weight:700; margin:6px 0 12px; }
 .fit-trend-big span { font-size:14px; font-weight:500; color:var(--f4-muted); margin-left:3px; }
 .fit-trend-subrow { display:flex; gap:8px; }
 .fit-trend-sub { flex:1; background:var(--f4-card-2); border-radius:12px; padding:10px 8px; }
@@ -1927,7 +1925,7 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-recovery-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .fit-recovery-mini { background:var(--f4-card-2); border-radius:14px; padding:12px; }
 .fit-recovery-mini-label { font-size:12px; color:var(--f4-muted); margin-bottom:4px; }
-.fit-recovery-mini-val { font-family:'PingFang SC','Microsoft YaHei',sans-serif; font-size:20px; font-weight:700; }
+.fit-recovery-mini-val { font-family:inherit; font-size:20px; font-weight:700; }
 
 /* 空状态 */
 .fit-empty-box { text-align:center; padding:24px 12px; }
@@ -1946,13 +1944,13 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-plan-item.done .fit-plan-check { background:var(--f4-sage); }
 .fit-plan-name { flex:1; font-weight:600; font-size:14px; }
 .fit-plan-dur { font-size:12px; color:var(--f4-muted); }
-.fit-day-item.done { text-decoration:line-through; }
+.fit-day-item.done { text-decoration:none; }
 
 /* 四大营养卡 */
 .fit-macro4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
 .fit-macro4-card { background:var(--f4-card); border:1px solid var(--f4-line); border-radius:16px; padding:14px 8px; text-align:center; position:relative; }
 .fit-macro4-label { font-size:11px; color:var(--f4-muted); margin-bottom:6px; }
-.fit-macro4-val { font-family:'PingFang SC','Microsoft YaHei',sans-serif; font-size:18px; font-weight:700; }
+.fit-macro4-val { font-family:inherit; font-size:18px; font-weight:700; }
 .fit-macro4-val span { display:block; font-size:11px; color:var(--f4-muted); font-weight:400; margin-top:2px; }
 .fit-macro4-edit { position:absolute; top:6px; right:8px; font-size:11px; color:var(--f4-muted); cursor:pointer; }
 .fit-macro4-edit:hover { color:var(--f4-accent); }
@@ -1978,7 +1976,7 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-day-head { font-size:12px; color:var(--f4-muted); }
 .fit-day-empty { font-size:12px; color:var(--f4-muted); padding:6px 0; }
 .fit-day-item { font-size:12px; padding:5px 4px; background:var(--f4-sage-l); border-radius:8px; color:var(--f4-sage-d); cursor:pointer; }
-.fit-day-item.done { opacity:.75; }
+.fit-day-item.done { opacity:.75; text-decoration:none; }
 
 /* 表格 */
 .fit-table { width:100%; border-collapse:collapse; font-size:12px; min-width:520px; }
@@ -2025,7 +2023,7 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-energy3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px; }
 .fit-energy3-card { background:var(--f4-card-2); border-radius:14px; padding:14px 8px; text-align:center; }
 .fit-energy3-label { font-size:11px; color:var(--f4-muted); margin-bottom:6px; }
-.fit-energy3-val { font-family:'PingFang SC','Microsoft YaHei',sans-serif; font-size:22px; font-weight:700; }
+.fit-energy3-val { font-family:inherit; font-size:22px; font-weight:700; }
 .fit-energy3-val span { font-size:11px; color:var(--f4-muted); font-weight:400; }
 .fit-disclaimer { background:var(--f4-beige); border-radius:12px; padding:12px; font-size:12px; color:var(--f4-muted); line-height:1.5; }
 .fit-form-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
@@ -2038,7 +2036,7 @@ input:disabled, textarea:disabled, select:disabled { background: #f1f3f0; color:
 .fit-input, .fit-select { background:#fff; border:1px solid var(--f4-line); border-radius:10px; padding:8px 10px; font-size:13px; color:var(--f4-text); outline:none; }
 .fit-input:focus, .fit-select:focus { border-color:var(--f4-accent); }
 .fit-period-hero { background:linear-gradient(135deg,var(--f4-accent-l),#fff); border:1px solid var(--f4-accent-l); border-radius:18px; padding:22px; text-align:center; margin-bottom:14px; }
-.fit-period-hero .big { font-family:'PingFang SC','Microsoft YaHei',sans-serif; font-size:42px; font-weight:700; color:var(--f4-accent); }
+.fit-period-hero .big { font-family:inherit; font-size:42px; font-weight:700; color:var(--f4-accent); }
 .fit-period-hero .sub { font-size:13px; color:var(--f4-text); margin-top:6px; }
 .fit-period-hero .meta { font-size:12px; color:var(--f4-muted); margin-top:4px; }
 .fit-symptom-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
@@ -2068,7 +2066,7 @@ body.fit-dark .fitness-v4 .fit-countdown-title-input:focus { background:#2a2a2a;
   .fit-energy3 { grid-template-columns:1fr; }
   .fitness-v4 { padding-bottom:28px; }
   .fit-card { padding:14px; }
-  .sub-tab { font-size:12px; padding:8px 3px; }
+  .sub-tab { font-size:12px; padding:8px 10px; }
 }
 @media (max-width:400px) {
   .fit-form-grid { grid-template-columns:1fr; }
@@ -8365,7 +8363,7 @@ function renderFitPlan() {
     return g;
   }
   html += '<div class="card">'
-    + '<div class="card-title">本周计划 <button class="btn btn-outline btn-sm" onclick="copyLastWeekPlan()" style="float:right">复制上周</button></div>'
+    + '<div class="card-title" style="display:flex;justify-content:space-between;align-items:center"><span>本周计划</span><button class="btn btn-outline btn-sm" onclick="copyLastWeekPlan()">复制上周</button></div>'
     + '<div class="fit-week-nav"><button class="fit-btn-icon" onclick="fitPlanWeekKey=addDays(fitPlanWeekKey,-7);switchPage(\'fitness\',\'\')">◀</button><span>' + monday.slice(5).replace('-','.') + ' - ' + addDays(monday,6).slice(5).replace('-','.') + '</span><button class="fit-btn-icon" onclick="fitPlanWeekKey=addDays(fitPlanWeekKey,7);switchPage(\'fitness\',\'\')">▶</button></div>'
     + '<div class="fit-week-pages" id="fitWeekPages" onscrollend="fitWeekScrollEnd(this)">'
     + buildWeekPage(prevMonday)
@@ -10094,7 +10092,9 @@ function periodMarkMap(){
   memoRecs('period').forEach(r => {
     if (!r.start) return;
     let cur = r.start, guard = 0;
-    const end = r.end || addDays(r.start, avgPeriodLen() - 1);
+    let end = r.end || addDays(r.start, avgPeriodLen() - 1);
+    // 保护：错误/超长的结束日自动截断到默认经期长度，避免整月全绿
+    if (daysBetween(r.start, end) > 15) end = addDays(r.start, avgPeriodLen() - 1);
     while (daysBetween(end, cur) >= 0 && guard < 45) { marks[cur] = 'period'; cur = addDays(cur,1); guard++; }
   });
   const next = estimateNextPeriod();
@@ -10558,9 +10558,9 @@ function renderLoveModule(){
   html += `<div class="card">
     <div class="section-header"><h3>💕 恋爱日常</h3></div>
     <div class="mb-12"><label class="text-sm text-gray">标题</label>
-      <input type="text" id="loveTitle" placeholder="例如：一起看了日落" style="margin-top:4px"></div>
+      <input type="text" id="loveTitle" value="" autocomplete="off" placeholder="例如：一起看了日落" style="margin-top:4px"></div>
     <div class="mb-12"><label class="text-sm text-gray">正文</label>
-      <textarea id="loveContent" rows="5" placeholder="记录今天的暖心小事、感动瞬间、相处感想..." style="margin-top:4px"></textarea></div>
+      <textarea id="loveContent" rows="5" autocomplete="off" placeholder="记录今天的暖心小事、感动瞬间、相处感想..." style="margin-top:4px"></textarea></div>
     <div class="mb-12"><label class="text-sm text-gray">今日心情</label>
       <select id="loveMood" style="margin-top:4px">${MOOD_OPTS.map(o => `<option ${o === MOOD_OPTS[0] ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
     <div class="mb-12">
@@ -10594,6 +10594,7 @@ function addLoveRecord(){
   });
   clearLoveForm();
   saveDB(); renderPage('memo',''); showToast('日记已保存');
+  setTimeout(clearLoveForm, 50);
 }
 function clearLoveForm(){
   const t = document.getElementById('loveTitle'); if (t) t.value = '';
